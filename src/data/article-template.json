@@ -1,0 +1,19 @@
+{
+  "_تعليمات": "قالب إدخال مادة واحدة. انسخ هذا الكائن لكل مادة جديدة وأضِفه إلى src/data/articles.js. النص الرسمي يُنسخ حرفياً من المصدر؛ والشرح والمثال من إعدادنا (غير رسمي).",
+  "articleNumber": 0,
+  "chapter": { "number": 0, "title": "" },
+  "section": { "number": 0, "title": "" },
+  "isAmended": false,
+  "officialText": "النص الرسمي الساري حرفياً (للمواد المعدّلة = نص التعديل المعتمَد).",
+  "originalText": null,
+  "amendmentInfo": null,
+  "simplifiedAr": "شرح مبسّط في ٢-٤ أسطر — غير رسمي.",
+  "example": {
+    "scenario": "موقف عملي واقعي.",
+    "outcome": "النتيجة وفق المادة."
+  },
+  "keywords": [],
+  "relatedArticles": [],
+  "lastUpdated": "1446",
+  "status": "entered"
+}

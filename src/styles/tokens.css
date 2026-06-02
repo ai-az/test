@@ -1,0 +1,81 @@
+/* Hallmark · macrostructure: Specimen · tone: editorial-luxury · anchor hue: warm sienna
+ * theme: Specimen (light · italic/kufi-display · warm accent) — adapted for Arabic RTL
+ * Design tokens for «المرجع التفاعلي لنظام العمل السعودي».
+ * Every colour, font, space, type-step, rule and easing is named here.
+ * The app references these by name only — no raw values inline.
+ */
+
+:root {
+  /* ── Typography families ─────────────────────────────── */
+  --font-display: "Noto Kufi Arabic", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans Arabic", "Noto Kufi Arabic", system-ui, sans-serif;
+
+  /* ── Type scale (12 / 16 / 20 / 32 / 64 / 120) ───────── */
+  --text-xs: 0.75rem;     /* 12 */
+  --text-sm: 0.875rem;    /* 14 */
+  --text-base: 1rem;      /* 16 */
+  --text-lg: 1.25rem;     /* 20 */
+  --text-xl: 1.5rem;      /* 24 */
+  --text-2xl: 2rem;       /* 32 */
+  --text-4xl: 4rem;       /* 64 */
+  --text-display: clamp(4.5rem, 18vw, 7.5rem);   /* huge article number */
+  --text-display-xl: clamp(3rem, 12vw, 7.5rem);  /* cover wordmark */
+
+  --leading-prose: 1.9;   /* comfortable Arabic line-height */
+  --leading-tight: 1.15;
+
+  /* ── Spacing (4pt scale) ─────────────────────────────── */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6.5rem;
+
+  /* ── Rules / radius ──────────────────────────────────── */
+  --rule-hairline: 1px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  /* ── Motion ──────────────────────────────────────────── */
+  --dur-fast: 140ms;
+  --dur-mid: 260ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ── Palette — light (warm paper) ────────────────────── */
+  --color-paper: oklch(98.6% 0.004 85);
+  --color-paper-2: oklch(96.4% 0.006 84);
+  --color-paper-3: oklch(93.5% 0.008 82);
+  --color-ink: oklch(22% 0.012 60);
+  --color-ink-soft: oklch(46% 0.012 62);
+  --color-ink-faint: oklch(62% 0.01 64);
+  --color-accent: oklch(52% 0.135 47);          /* warm sienna */
+  --color-accent-soft: oklch(52% 0.135 47 / 0.10);
+  --color-rule: oklch(84% 0.01 70);
+  --color-amend: oklch(58% 0.13 75);            /* amber — "معدَّلة" */
+  --color-amend-soft: oklch(58% 0.13 75 / 0.12);
+  --color-focus: oklch(52% 0.135 47);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --color-paper: oklch(19% 0.008 62);
+  --color-paper-2: oklch(23% 0.009 62);
+  --color-paper-3: oklch(28% 0.01 62);
+  --color-ink: oklch(94% 0.006 85);
+  --color-ink-soft: oklch(74% 0.01 80);
+  --color-ink-faint: oklch(58% 0.01 70);
+  --color-accent: oklch(72% 0.12 55);
+  --color-accent-soft: oklch(72% 0.12 55 / 0.14);
+  --color-rule: oklch(34% 0.012 65);
+  --color-amend: oklch(78% 0.12 80);
+  --color-amend-soft: oklch(78% 0.12 80 / 0.16);
+  --color-focus: oklch(72% 0.12 55);
+
+  color-scheme: dark;
+}
