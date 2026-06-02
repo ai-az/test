@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import { LAW_META, chapters } from "../data/chapters.js";
-import { enteredArticleNumbers } from "../data/articles.js";
+import { enteredCount } from "../data/articles.js";
 import { displayNumber, ordinalAr } from "../lib/format.js";
 
 export default function Home() {
@@ -28,7 +28,7 @@ export default function Home() {
           <Stat value={displayNumber(LAW_META.chapterCount, lang)} label={t("stat_chapters")} />
           <Stat value={displayNumber(LAW_META.articleCount, lang)} label={t("stat_articles")} />
           <Stat
-            value={displayNumber(enteredArticleNumbers.length, lang)}
+            value={displayNumber(enteredCount, lang)}
             label={t("articles_entered")}
             accent
           />

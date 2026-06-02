@@ -25,9 +25,9 @@ export default function Bookmarks() {
       ) : (
         <ul className="divide-y divide-[var(--color-rule)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-rule)]">
           {saved.map((a) => (
-            <li key={a.articleNumber}>
+            <li key={a.id}>
               <Link
-                to={`/article/${a.articleNumber}`}
+                to={`/article/${a.id}`}
                 className="group flex items-center gap-4 bg-[var(--color-paper)] px-5 py-4 transition-colors hover:bg-[var(--color-paper-2)]"
               >
                 <span className="font-display min-w-9 text-[var(--text-xl)] font-black text-[var(--color-ink-faint)] transition-colors group-hover:text-[var(--color-accent)]">

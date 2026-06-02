@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import { getChapter } from "../data/chapters.js";
 import { articlesInChapter } from "../data/articles.js";
-import { displayNumber, ordinalAr } from "../lib/format.js";
+import { displayNumber, displayArticleNumber, ordinalAr } from "../lib/format.js";
 import NotFound from "./NotFound.jsx";
 
 export default function ChapterDetail() {
@@ -80,9 +80,9 @@ function ArticleList({ articles, className = "" }) {
       className={`mt-4 divide-y divide-[var(--color-rule)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-rule)] ${className}`}
     >
       {articles.map((a) => (
-        <li key={a.articleNumber}>
+        <li key={a.id}>
           <Link
-            to={`/article/${a.articleNumber}`}
+            to={`/article/${a.id}`}
             className="group flex items-center gap-4 bg-[var(--color-paper)] px-5 py-4 transition-colors duration-150 hover:bg-[var(--color-paper-2)]"
           >
             <span className="font-display min-w-9 text-[var(--text-xl)] font-black text-[var(--color-ink-faint)] transition-colors group-hover:text-[var(--color-accent)]">
@@ -90,7 +90,7 @@ function ArticleList({ articles, className = "" }) {
             </span>
             <span className="min-w-0 flex-1">
               <span className="eyebrow block">
-                {t("article_word")} {displayNumber(a.articleNumber, lang)}
+                {t("article_word")} {displayArticleNumber(a, lang)}
               </span>
               <span className="mt-0.5 line-clamp-2 block text-[var(--text-sm)] leading-relaxed text-[var(--color-ink-soft)]">
                 {a.officialText}

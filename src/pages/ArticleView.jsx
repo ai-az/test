@@ -4,7 +4,7 @@ import { useI18n } from "../i18n/I18nContext.jsx";
 import { getArticle, getAdjacentArticle, articles } from "../data/articles.js";
 import { LAW_META } from "../data/chapters.js";
 import { useBookmarks } from "../lib/storage.js";
-import { displayNumber, ordinalAr } from "../lib/format.js";
+import { displayArticleNumber, ordinalAr } from "../lib/format.js";
 import NotFound from "./NotFound.jsx";
 
 export default function ArticleView() {
@@ -17,13 +17,14 @@ export default function ArticleView() {
 
   if (!article) return <NotFound />;
 
-  const n = article.articleNumber;
-  const prev = getAdjacentArticle(n, "prev");
-  const next = getAdjacentArticle(n, "next");
-  const bookmarked = has(n);
+  const id = article.id;
+  const numLabel = displayArticleNumber(article, lang);
+  const prev = getAdjacentArticle(id, "prev");
+  const next = getAdjacentArticle(id, "next");
+  const bookmarked = has(id);
 
   const copy = async () => {
-    const ref = `${t("article_word")} ${displayNumber(n, lang)} — ${LAW_META.titleAr} (${LAW_META.decree})`;
+    const ref = `${t("article_word")} ${numLabel} — ${LAW_META.titleAr} (${LAW_META.decree})`;
     try {
       await navigator.clipboard.writeText(`${article.officialText}\n\n${ref}`);
       setCopied(true);
@@ -58,7 +59,7 @@ export default function ArticleView() {
       {/* Specimen header: huge numeral */}
       <header className="reveal mt-6 flex flex-wrap items-end justify-between gap-6 border-b border-[var(--color-rule)] pb-8">
         <div className="flex items-end gap-4">
-          <span className="specimen-numeral">{displayNumber(n, lang)}</span>
+          <span className="specimen-numeral">{numLabel}</span>
           <div className="pb-2">
             <p className="eyebrow">{t("article_word")}</p>
             {article.isAmended && (
@@ -73,7 +74,7 @@ export default function ArticleView() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => toggle(n)}
+            onClick={() => toggle(id)}
             aria-pressed={bookmarked}
             className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[var(--text-xs)] transition-colors ${
               bookmarked
@@ -197,7 +198,7 @@ export default function ArticleView() {
                   to={`/article/${r}`}
                   className="font-display rounded-[var(--radius-sm)] border border-[var(--color-rule)] px-3 py-1.5 text-[var(--text-sm)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
                 >
-                  {t("article_word")} {displayNumber(r, lang)}
+                  {t("article_word")} {displayArticleNumber(articles[r], lang)}
                 </Link>
               ))}
           </div>
@@ -255,11 +256,12 @@ function BookmarkIcon({ filled }) {
 
 function AdjacentLink({ to, dir, label }) {
   const { lang } = useI18n();
-  if (!to) return <span className="flex-1" aria-hidden="true" />;
+  const target = to ? getArticle(to) : null;
+  if (!target) return <span className="flex-1" aria-hidden="true" />;
   const arrow = dir === "next" ? "←" : "→";
   return (
     <Link
-      to={`/article/${to}`}
+      to={`/article/${target.id}`}
       className={`group flex flex-1 flex-col gap-1 rounded-[var(--radius-md)] border border-[var(--color-rule)] p-4 transition-colors hover:border-[var(--color-accent)] ${
         dir === "next" ? "items-start text-start" : "items-end text-end"
       }`}
@@ -268,7 +270,7 @@ function AdjacentLink({ to, dir, label }) {
         {arrow} {label}
       </span>
       <span className="font-display text-[var(--text-lg)] font-bold text-[var(--color-ink)] transition-colors group-hover:text-[var(--color-accent)]">
-        {displayNumber(to, lang)}
+        {displayArticleNumber(target, lang)}
       </span>
     </Link>
   );
