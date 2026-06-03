@@ -1,0 +1,357 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+/* تُعرَّف كل توكنات التصميم في tokens.css بأسماء خارج نطاقات Tailwind
+   (--c-* / --fz-* / --ff-* / --rad-*) فلا يلمسها المحرّك، وتُستعمل عبر القيم
+   التعسّفية مثل bg-[var(--c-paper)]. لا حاجة لـ @theme. */
+
+/* ── Base ───────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  overflow-x: clip;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--t-base);
+  line-height: var(--lh-prose);
+  font-feature-settings: var(--feat-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+:root[dir="ltr"] body {
+  line-height: 1.65;
+}
+
+/* subtle paper grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(28, 27, 24, 0.02) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+:root[data-theme="dark"] body::before {
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+}
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hair-strong);
+  border-radius: 20px;
+  border: 3px solid var(--paper);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Typographic primitives ─────────────────────────────── */
+.font-display {
+  font-family: var(--display);
+  font-feature-settings: var(--feat-display);
+  letter-spacing: -0.01em;
+}
+.display {
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  font-feature-settings: var(--feat-display);
+}
+.kashida {
+  font-feature-settings: var(--feat-kashida);
+}
+.num {
+  font-family: var(--display);
+  font-feature-settings: "tnum" 1;
+  line-height: 0.9;
+}
+
+.eyebrow,
+.kicker {
+  font-family: var(--text);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.hairline {
+  border: 0;
+  border-top: var(--rule-hairline) solid var(--hair);
+}
+
+/* huge specimen numeral — the design signature */
+.specimen-numeral {
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 0.9;
+  font-size: calc(var(--fz-display) * var(--num-scale));
+  font-feature-settings: "tnum" 1;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ── Icon button ────────────────────────────────────────── */
+.act {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--ink);
+  transition: all 0.18s ease;
+}
+.act:hover {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+/* ── «ضبط الطابع» button + panel ────────────────────────── */
+.char-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid var(--hair-strong);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--ink);
+  font: 600 13.5px var(--text);
+  transition: all 0.18s ease;
+}
+.char-btn:hover {
+  background: var(--accent-tint);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+@media (max-width: 560px) {
+  .char-btn span {
+    display: none;
+  }
+  .char-btn {
+    padding: 8px;
+    border-radius: 10px;
+  }
+}
+.char-panel {
+  position: fixed;
+  top: 74px;
+  inset-inline-start: var(--gutter);
+  width: min(340px, calc(100vw - 28px));
+  background: var(--card);
+  border: 1px solid var(--hair-strong);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px -24px rgba(28, 27, 24, 0.5);
+  padding: 22px 24px;
+  z-index: 151;
+  animation: charIn 0.25s var(--ease-out) both;
+}
+:root[data-theme="dark"] .char-panel {
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+}
+@keyframes charIn {
+  from {
+    transform: translateY(-8px);
+  }
+  to {
+    transform: none;
+  }
+}
+.char-sec {
+  font: 600 11px var(--text);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+}
+.char-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  border: 2px solid transparent;
+  outline: 1px solid var(--hair);
+  transition: all 0.18s ease;
+}
+.char-swatch:hover {
+  transform: translateY(-2px);
+}
+.char-swatch.is-on {
+  border-color: var(--card);
+  box-shadow: 0 0 0 2px var(--sw);
+  outline: none;
+}
+.char-range {
+  flex: 1;
+  accent-color: var(--accent);
+  height: 4px;
+  cursor: pointer;
+}
+.char-seg {
+  display: flex;
+  gap: 6px;
+}
+.char-seg button {
+  flex: 1;
+  border: 1px solid var(--hair-strong);
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 4px;
+  font: 600 13px var(--text);
+  color: var(--ink-soft);
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.char-seg button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
+/* ── "آخر التحديثات" live badge ─────────────────────────── */
+.badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12px var(--text);
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  background: var(--accent-tint);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  border-radius: 999px;
+  padding: 5px 12px 5px 11px;
+  transition: all 0.18s ease;
+}
+.badge-live:hover {
+  background: var(--accent-tint-2);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  position: relative;
+  flex-shrink: 0;
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.55;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .live-dot::after {
+    animation: livePulse 1.8s ease-out infinite;
+  }
+}
+@keyframes livePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* ── Reveal — animate TRANSFORM ONLY (never opacity) ────── */
+.reveal {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    animation: reveal 0.6s var(--ease-out) both;
+  }
+  @keyframes reveal {
+    from {
+      transform: translateY(16px);
+    }
+    to {
+      transform: none;
+    }
+  }
+}
+
+/* ── Print / PDF export ─────────────────────────────────── */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff;
+    color: #000;
+  }
+  body::before {
+    display: none;
+  }
+  main {
+    padding: 0 !important;
+  }
+  a {
+    color: #000;
+  }
+  .reveal {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,120 @@
+/* Hallmark · macrostructure: Specimen · tone: editorial-luxury · anchor hue: olive green
+ * theme: Specimen (Thmanyah serif/sans · warm paper · olive accent) — RTL Arabic
+ *
+ * نظام التصميم المعتمد (design_handoff_labor_law). كل التوكنات بأسماء خارج نطاقات Tailwind
+ * (لا --color-/--text-/--radius-/--font-) كي لا يحذفها المحرّك. تُستعمل عبر var(...).
+ */
+
+:root {
+  /* ── Raw palette — light (default) ───────────────────── */
+  --paper: #f7f4ec;
+  --paper-2: #f1ece1;
+  --card: #fffdf8;
+  --ink: #1c1b18;
+  --ink-soft: #57544c;
+  --ink-faint: #8c887c;
+  --hair: rgba(28, 27, 24, 0.14);
+  --hair-strong: rgba(28, 27, 24, 0.3);
+  --accent: #1a5c43;
+  --accent-deep: #124231;
+  --accent-tint: rgba(26, 92, 67, 0.08);
+  --accent-tint-2: rgba(26, 92, 67, 0.14);
+  --amber: #9a6b1e;
+  --amber-tint: rgba(154, 107, 30, 0.1);
+  --shadow: 0 1px 2px rgba(28, 27, 24, 0.04), 0 12px 30px -18px rgba(28, 27, 24, 0.25);
+
+  /* ── Typography families ─────────────────────────────── */
+  --display: "Thmanyah Serif", "Noto Kufi Arabic", serif;
+  --text: "Thmanyah Sans", "Noto Kufi Arabic", system-ui, sans-serif;
+
+  /* ── Type scale (px) ─────────────────────────────────── */
+  --t-xs: 12px;
+  --t-sm: 14px;
+  --t-base: 16px;
+  --t-md: 20px;
+  --t-lg: 24px;
+  --t-xl: 32px;
+  --t-2xl: 44px;
+  --t-3xl: 64px;
+  --num-scale: 1;
+
+  --lh-prose: 1.9;
+  --lh-tight: 1.1;
+
+  /* ── OpenType feature personality (set by «ضبط الطابع») ── */
+  --feat-body: "swsh" 1, "dlig" 1, "calt" 1, "rlig" 1, "liga" 1;
+  --feat-display: "swsh" 1, "dlig" 1, "calt" 1, "rlig" 1;
+  --feat-kashida: "swsh" 1, "ss05" 1, "dlig" 1, "calt" 1, "rlig" 1;
+
+  /* ── Spacing / layout ────────────────────────────────── */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6.5rem;
+  --maxw: 1180px;
+  --gutter: clamp(20px, 5vw, 64px);
+
+  --rule-hairline: 1px;
+  --rad-sm: 10px;
+  --rad-md: 15px;
+
+  /* ── Motion ──────────────────────────────────────────── */
+  --dur-fast: 180ms;
+  --dur-mid: 260ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ── Semantic aliases used across components ─────────── */
+  --ff-display: var(--display);
+  --ff-body: var(--text);
+
+  --c-paper: var(--paper);
+  --c-paper-2: var(--paper-2);
+  --c-paper-3: var(--card);
+  --c-ink: var(--ink);
+  --c-ink-soft: var(--ink-soft);
+  --c-ink-faint: var(--ink-faint);
+  --c-accent: var(--accent);
+  --c-accent-soft: var(--accent-tint-2);
+  --c-rule: var(--hair);
+  --c-amend: var(--amber);
+  --c-amend-soft: var(--amber-tint);
+  --c-focus: var(--accent);
+
+  --fz-xs: 12px;
+  --fz-sm: 14px;
+  --fz-base: 16px;
+  --fz-lg: 20px;
+  --fz-xl: 24px;
+  --fz-2xl: 32px;
+  --fz-4xl: 64px;
+  --fz-display: clamp(120px, 30vw, 360px);
+  --fz-display-xl: clamp(72px, 13vw, 132px);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --paper: #14130f;
+  --paper-2: #1b1a15;
+  --card: #1f1e18;
+  --ink: #f0ece1;
+  --ink-soft: #b7b2a4;
+  --ink-faint: #807c70;
+  --hair: rgba(240, 236, 225, 0.14);
+  --hair-strong: rgba(240, 236, 225, 0.28);
+  --accent: #5fb893;
+  --accent-deep: #8fd3b3;
+  --accent-tint: rgba(95, 184, 147, 0.1);
+  --accent-tint-2: rgba(95, 184, 147, 0.18);
+  --amber: #d2a45a;
+  --amber-tint: rgba(210, 164, 90, 0.12);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 18px 40px -20px rgba(0, 0, 0, 0.7);
+
+  color-scheme: dark;
+}
