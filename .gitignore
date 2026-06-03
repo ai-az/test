@@ -5,3 +5,5 @@ dist-ssr
 .DS_Store
 .vite
 .work/shots
+.work/*.mjs
+.work/gf.css

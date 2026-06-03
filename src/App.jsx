@@ -15,16 +15,22 @@ import CalculatorView from "./pages/CalculatorView.jsx";
 import Timeline from "./pages/Timeline.jsx";
 import Coverage from "./pages/Coverage.jsx";
 import Bookmarks from "./pages/Bookmarks.jsx";
+import CustomPage from "./pages/CustomPage.jsx";
+import Admin from "./pages/admin/Admin.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import { recordView } from "./lib/analytics.js";
 
 export default function App() {
   const { pathname } = useLocation();
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    recordView(pathname);
   }, [pathname]);
 
   return (
     <Layout>
+      {/* الصفحات العامّة تعكس التعديلات عند التنقّل؛ اللوحة والتذييل يتحدّثان محلياً */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/chapters" element={<Chapters />} />
@@ -40,6 +46,8 @@ export default function App() {
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/coverage" element={<Coverage />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
+        <Route path="/p/:slug" element={<CustomPage />} />
+        <Route path="/admin/*" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>

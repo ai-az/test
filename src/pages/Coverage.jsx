@@ -3,11 +3,12 @@ import { useI18n } from "../i18n/I18nContext.jsx";
 import { chapters } from "../data/chapters.js";
 import { articlesInChapter } from "../data/articles.js";
 import { chapterSlots, TOTAL_ARTICLE_SLOTS } from "../data/articleIndex.js";
-import { enteredCount } from "../data/articles.js";
+import { getEnteredCount } from "../data/articles.js";
 import { displayNumber } from "../lib/format.js";
 
 export default function Coverage() {
   const { t, lang } = useI18n();
+  const enteredCount = getEnteredCount();
   const pct = Math.round((enteredCount / TOTAL_ARTICLE_SLOTS) * 100);
 
   return (

@@ -1,11 +1,11 @@
 // البحث الفوري عبر Fuse.js مع تطبيع عربي (يعمل مع/بدون تشكيل، وبصيغ همزات متقاربة).
 import Fuse from "fuse.js";
-import { enteredArticles } from "../data/articles.js";
+import { getEnteredArticles } from "../data/articles.js";
 import { displayArticleNumber } from "./format.js";
 import { normalizeAr } from "./arabic.js";
 
 // مستندات البحث: نطبّع الحقول مسبقاً ليطابقها الاستعلام المطبَّع.
-const docs = enteredArticles.map((a) => ({
+const docs = getEnteredArticles().map((a) => ({
   id: a.id,
   article: a,
   numberText: `${a.articleNumber} ${displayArticleNumber(a, "ar")} المادة`,

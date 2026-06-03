@@ -772,22 +772,59 @@ export const articles = {
   },
 };
 
-// التنقّل بحسب id والترتيب (order)، مع دعم «مكرر».
-const enteredEntries = Object.values(articles)
-  .filter((a) => a.status === "entered")
-  .sort((a, b) => a.order - b.order);
+// ── طبقة التعديلات المحلية (لوحة التحكم) ───────────────────
+// نسخة مدمجة (built-in) محفوظة للرجوع إليها عند «استعادة الأصل».
+const BUILTIN = JSON.parse(JSON.stringify(articles));
+export const builtinArticleIds = new Set(Object.keys(BUILTIN));
 
-export const enteredIds = enteredEntries.map((a) => a.id);
-export const enteredCount = enteredEntries.length;
-export const enteredArticles = enteredEntries;
+// عند الإقلاع: ادمج التعديلات المحفوظة محلياً فوق البيانات المدمجة.
+function loadLocalArticleOverrides() {
+  try {
+    const raw = localStorage.getItem("marja:content");
+    if (!raw) return {};
+    return JSON.parse(raw).articles || {};
+  } catch {
+    return {};
+  }
+}
+if (typeof localStorage !== "undefined") {
+  Object.assign(articles, loadLocalArticleOverrides());
+}
+
+// تعديل/إضافة مادة في السجل الحيّ (يستدعيه المتجر بعد الحفظ المحلي).
+export function setArticle(id, data) {
+  articles[id] = { ...data, id: String(id) };
+}
+// استعادة الأصل المدمج أو حذف المادة المضافة.
+export function resetArticle(id) {
+  if (BUILTIN[id]) articles[id] = JSON.parse(JSON.stringify(BUILTIN[id]));
+  else delete articles[id];
+}
+// إعادة السجل إلى الحالة المدمجة بالكامل (يُستخدم قبل تطبيق استيراد جديد).
+export function resetAllArticles() {
+  for (const id of Object.keys(articles)) delete articles[id];
+  Object.assign(articles, JSON.parse(JSON.stringify(BUILTIN)));
+}
+
+// التنقّل والقوائم تُحسب حيّاً لتعكس التعديلات فوراً (≤236 عنصراً، رخيص).
+function computeEntered() {
+  return Object.values(articles)
+    .filter((a) => a.status === "entered")
+    .sort((a, b) => a.order - b.order);
+}
+
+export const getEnteredArticles = () => computeEntered();
+export const getEnteredIds = () => computeEntered().map((a) => a.id);
+export const getEnteredCount = () => computeEntered().length;
 
 export const getArticle = (id) => articles[id] || null;
 
 export const getAdjacentArticle = (id, dir) => {
-  const idx = enteredIds.indexOf(String(id));
+  const ids = getEnteredIds();
+  const idx = ids.indexOf(String(id));
   if (idx === -1) return null;
-  return enteredIds[idx + (dir === "next" ? 1 : -1)] ?? null;
+  return ids[idx + (dir === "next" ? 1 : -1)] ?? null;
 };
 
 export const articlesInChapter = (chapterNumber) =>
-  enteredEntries.filter((a) => a.chapter.number === Number(chapterNumber));
+  computeEntered().filter((a) => a.chapter.number === Number(chapterNumber));

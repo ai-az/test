@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { LAW_META } from "../../data/chapters.js";
 import { useI18n } from "../../i18n/I18nContext.jsx";
+import { listPages, useContentVersion } from "../../store/content.js";
 
 const FOOTER_LINKS = [
   { to: "/start", key: "nav_start" },
@@ -13,6 +14,8 @@ const FOOTER_LINKS = [
 
 export default function SiteFooter() {
   const { t } = useI18n();
+  useContentVersion();
+  const pages = listPages();
   return (
     <footer className="no-print mt-auto border-t border-[var(--color-rule)] bg-[var(--color-paper-2)]">
       <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
@@ -22,6 +25,14 @@ export default function SiteFooter() {
               {t(l.key)}
             </Link>
           ))}
+          {pages.map((p) => (
+            <Link key={p.slug} to={`/p/${p.slug}`} className="transition-colors hover:text-[var(--color-accent)]">
+              {p.title}
+            </Link>
+          ))}
+          <Link to="/admin" className="text-[var(--color-ink-faint)] transition-colors hover:text-[var(--color-accent)]">
+            لوحة التحكم
+          </Link>
         </nav>
         <p className="max-w-2xl text-[var(--text-sm)] leading-relaxed text-[var(--color-ink-soft)]">
           <span className="font-display font-bold text-[var(--color-accent)]">
