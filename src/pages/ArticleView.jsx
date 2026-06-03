@@ -5,6 +5,8 @@ import { getArticle, getAdjacentArticle, articles } from "../data/articles.js";
 import { LAW_META } from "../data/chapters.js";
 import { useBookmarks } from "../lib/storage.js";
 import { displayArticleNumber, ordinalAr } from "../lib/format.js";
+import { GLOSSARY_ARTICLE } from "../data/glossary.js";
+import GlossaryText from "../components/GlossaryText.jsx";
 import NotFound from "./NotFound.jsx";
 
 export default function ArticleView() {
@@ -100,7 +102,10 @@ export default function ArticleView() {
         <SectionLabel>{t("official_text")}</SectionLabel>
         <div className="mt-3 rounded-[var(--radius-md)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-6">
           <p className="text-[var(--text-lg)] leading-[var(--leading-prose)] text-[var(--color-ink)]">
-            {article.officialText}
+            <GlossaryText
+              text={article.officialText}
+              enableTooltips={article.id !== GLOSSARY_ARTICLE}
+            />
           </p>
         </div>
 

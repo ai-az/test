@@ -1,25 +1,36 @@
-import { Link, NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useI18n } from "../../i18n/I18nContext.jsx";
 
-function navClass({ isActive }) {
+const LINKS = [
+  { to: "/chapters", key: "nav_chapters" },
+  { to: "/index", key: "nav_index" },
+  { to: "/glossary", key: "nav_glossary" },
+  { to: "/bookmarks", key: "nav_bookmarks" },
+];
+
+function linkClass({ isActive }) {
   return [
     "relative py-1 text-[var(--text-sm)] transition-colors duration-150",
     isActive
-      ? "text-[var(--color-ink)]"
+      ? "text-[var(--color-ink)] after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-[var(--color-accent)]"
       : "text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]",
-    isActive
-      ? "after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-[var(--color-accent)]"
-      : "",
   ].join(" ");
 }
 
 export default function SiteHeader() {
   const { t, toggleLang, toggleTheme, theme } = useI18n();
+  const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--color-rule)] bg-[var(--color-paper)]/85 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-[var(--color-rule)] bg-[var(--color-paper)]/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-        <Link to="/" className="group flex items-baseline gap-2">
+        <Link to="/" className="flex items-baseline gap-2">
           <span className="font-display text-[var(--text-lg)] font-bold leading-none text-[var(--color-ink)]">
             {t("siteName")}
           </span>
@@ -28,15 +39,27 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-5">
-          <NavLink to="/chapters" className={navClass}>
-            {t("nav_chapters")}
-          </NavLink>
-          <NavLink to="/bookmarks" className={navClass}>
-            {t("nav_bookmarks")}
-          </NavLink>
+        {/* روابط سطح المكتب */}
+        <nav className="hidden items-center gap-5 md:flex">
+          {LINKS.map((l) => (
+            <NavLink key={l.to} to={l.to} className={linkClass}>
+              {t(l.key)}
+            </NavLink>
+          ))}
+        </nav>
 
-          <span className="h-4 w-px bg-[var(--color-rule)]" aria-hidden="true" />
+        <div className="flex items-center gap-2">
+          <NavLink
+            to="/search"
+            aria-label={t("nav_search")}
+            className={({ isActive }) =>
+              `grid size-8 place-items-center rounded-full transition-colors hover:bg-[var(--color-paper-3)] ${
+                isActive ? "text-[var(--color-accent)]" : "text-[var(--color-ink-soft)]"
+              }`
+            }
+          >
+            <SearchIcon />
+          </NavLink>
 
           <button
             type="button"
@@ -54,12 +77,63 @@ export default function SiteHeader() {
           >
             {t("toggle_lang")}
           </button>
-        </nav>
+
+          {/* قائمة الجوال */}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={t("menu")}
+            aria-expanded={open}
+            className="grid size-8 place-items-center rounded-full text-[var(--color-ink-soft)] transition-colors hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] md:hidden"
+          >
+            {open ? <CloseIcon /> : <MenuIcon />}
+          </button>
+        </div>
       </div>
+
+      {open && (
+        <nav className="reveal border-t border-[var(--color-rule)] bg-[var(--color-paper)] px-5 py-2 md:hidden">
+          {LINKS.map((l) => (
+            <NavLink
+              key={l.to}
+              to={l.to}
+              className={({ isActive }) =>
+                `block border-b border-[var(--color-rule)] py-3 text-[var(--text-base)] last:border-0 ${
+                  isActive ? "text-[var(--color-accent)]" : "text-[var(--color-ink-soft)]"
+                }`
+              }
+            >
+              {t(l.key)}
+            </NavLink>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }
 
+function SearchIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
+      <path d="m20 20-3.2-3.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+function MenuIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+function CloseIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
 function MoonIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -72,7 +146,6 @@ function MoonIcon() {
     </svg>
   );
 }
-
 function SunIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -555,6 +555,7 @@ const enteredEntries = Object.values(articles)
 
 export const enteredIds = enteredEntries.map((a) => a.id);
 export const enteredCount = enteredEntries.length;
+export const enteredArticles = enteredEntries;
 
 export const getArticle = (id) => articles[id] || null;
 
