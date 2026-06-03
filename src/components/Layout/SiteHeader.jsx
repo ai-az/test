@@ -3,9 +3,12 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useI18n } from "../../i18n/I18nContext.jsx";
 
 const LINKS = [
+  { to: "/start", key: "nav_start" },
   { to: "/chapters", key: "nav_chapters" },
+  { to: "/calculators", key: "nav_calculators" },
   { to: "/index", key: "nav_index" },
   { to: "/glossary", key: "nav_glossary" },
+  { to: "/timeline", key: "nav_timeline" },
   { to: "/bookmarks", key: "nav_bookmarks" },
 ];
 
@@ -40,7 +43,7 @@ export default function SiteHeader() {
         </Link>
 
         {/* روابط سطح المكتب */}
-        <nav className="hidden items-center gap-5 md:flex">
+        <nav className="hidden items-center gap-5 lg:flex">
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} className={linkClass}>
               {t(l.key)}
@@ -84,7 +87,7 @@ export default function SiteHeader() {
             onClick={() => setOpen((v) => !v)}
             aria-label={t("menu")}
             aria-expanded={open}
-            className="grid size-8 place-items-center rounded-full text-[var(--color-ink-soft)] transition-colors hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] md:hidden"
+            className="grid size-8 place-items-center rounded-full text-[var(--color-ink-soft)] transition-colors hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] lg:hidden"
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
@@ -92,7 +95,7 @@ export default function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="reveal border-t border-[var(--color-rule)] bg-[var(--color-paper)] px-5 py-2 md:hidden">
+        <nav className="reveal border-t border-[var(--color-rule)] bg-[var(--color-paper)] px-5 py-2 lg:hidden">
           {LINKS.map((l) => (
             <NavLink
               key={l.to}

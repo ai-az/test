@@ -7,6 +7,7 @@ import { useBookmarks } from "../lib/storage.js";
 import { displayArticleNumber, ordinalAr } from "../lib/format.js";
 import { GLOSSARY_ARTICLE } from "../data/glossary.js";
 import GlossaryText from "../components/GlossaryText.jsx";
+import { downloadArticleCard } from "../lib/shareCard.js";
 import NotFound from "./NotFound.jsx";
 
 export default function ArticleView() {
@@ -93,6 +94,13 @@ export default function ArticleView() {
             className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
           >
             {copied ? t("copied") : t("copy")}
+          </button>
+          <button
+            type="button"
+            onClick={() => downloadArticleCard(article, numLabel)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+          >
+            {t("share")}
           </button>
         </div>
       </header>

@@ -47,6 +47,38 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Quick entries ─────────────────────────────── */}
+      <section className="grid grid-cols-1 gap-px overflow-hidden border-b border-[var(--color-rule)] bg-[var(--color-rule)] sm:grid-cols-2">
+        <Link
+          to="/start"
+          className="group flex items-center justify-between gap-4 bg-[var(--color-paper)] p-6 transition-colors hover:bg-[var(--color-paper-2)]"
+        >
+          <span>
+            <span className="font-display block text-[var(--text-lg)] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
+              {t("scenarios_title")}
+            </span>
+            <span className="text-[var(--text-sm)] text-[var(--color-ink-faint)]">
+              «تم فصلي» · «استقالة» · «إجازات» · «ساعات إضافية»
+            </span>
+          </span>
+          <span className="text-[var(--text-xl)] text-[var(--color-accent)] rtl:rotate-180">→</span>
+        </Link>
+        <Link
+          to="/calculators"
+          className="group flex items-center justify-between gap-4 bg-[var(--color-paper)] p-6 transition-colors hover:bg-[var(--color-paper-2)]"
+        >
+          <span>
+            <span className="font-display block text-[var(--text-lg)] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
+              {t("calculators_title")}
+            </span>
+            <span className="text-[var(--text-sm)] text-[var(--color-ink-faint)]">
+              مكافأة نهاية الخدمة · الأجر الإضافي · رصيد الإجازة
+            </span>
+          </span>
+          <span className="text-[var(--text-xl)] text-[var(--color-accent)] rtl:rotate-180">→</span>
+        </Link>
+      </section>
+
       {/* ── Chapter index, specimen-style ──────────────── */}
       <section className="py-12 sm:py-16">
         <div className="mb-8 flex items-baseline justify-between gap-4">

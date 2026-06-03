@@ -69,6 +69,30 @@ const STRINGS = {
     index_lead:
       "فهرس شامل للأبواب وموادّها المتاحة. صفِّ حسب الباب، والمواد المعدّلة موسومة بنقطة.",
     filter_all: "الكل",
+    nav_start: "ابدأ بموقفك",
+    nav_calculators: "الحاسبات",
+    nav_timeline: "التعديلات",
+    scenarios_title: "الدخول حسب الموقف",
+    scenarios_lead:
+      "ابدأ من حالتك، لا من رقم الباب — نوجّهك إلى المواد ذات الصلة والحاسبة المناسبة.",
+    scenario_calc_cta: "افتح الحاسبة المرتبطة بهذا الموقف",
+    scenario_articles: "المواد ذات الصلة",
+    article_pending_label: "قيد الإدخال — قريباً",
+    calculators_title: "الحاسبات التفاعلية",
+    calculators_lead:
+      "أدخل أرقامك لتقدير مستحقاتك مباشرة. كل حاسبة مرتبطة بمادتها المرجعية.",
+    calc_disclaimer:
+      "النتيجة تقديرية لأغراض تعريفية ولا تُعدّ التزاماً قانونياً؛ تعتمد على دقة المدخلات وقد تختلف مكوّنات الأجر. يُرجى الرجوع للمادة والمصدر الرسمي.",
+    calc_result: "النتيجة التقديرية",
+    calc_enter_values: "أدخل القيم لعرض النتيجة.",
+    calc_sources: "المواد المرجعية",
+    timeline_title: "خط التعديلات",
+    timeline_lead:
+      "تطوّر نظام العمل عبر مراسيمه المعدِّلة، من المرسوم الأصلي م/٥١ إلى أحدث التعديلات.",
+    timeline_origin: "النص الأصلي",
+    timeline_note:
+      "ربط المراسيم بالمواد يعتمد على ما توفّر من الحواشي الرسمية؛ تُراجع التفاصيل من المصدر الرسمي.",
+    share: "بطاقة مشاركة",
   },
   en: {
     dir: "ltr",
@@ -137,6 +161,30 @@ const STRINGS = {
     index_lead:
       "A full index of chapters and their available articles. Filter by chapter; amended articles are marked with a dot.",
     filter_all: "All",
+    nav_start: "By situation",
+    nav_calculators: "Calculators",
+    nav_timeline: "Amendments",
+    scenarios_title: "Start by situation",
+    scenarios_lead:
+      "Start from your case, not a chapter number — we guide you to the relevant articles and the right calculator.",
+    scenario_calc_cta: "Open the calculator for this situation",
+    scenario_articles: "Related articles",
+    article_pending_label: "Being added — soon",
+    calculators_title: "Interactive calculators",
+    calculators_lead:
+      "Enter your numbers for an instant estimate. Each calculator is linked to its source article.",
+    calc_disclaimer:
+      "The result is an informational estimate, not a legal obligation; it depends on input accuracy and wage components may vary. Please refer to the article and the official source.",
+    calc_result: "Estimated result",
+    calc_enter_values: "Enter values to see the result.",
+    calc_sources: "Source articles",
+    timeline_title: "Amendments timeline",
+    timeline_lead:
+      "The law's evolution through its amending decrees, from the original M/51 to the latest amendments.",
+    timeline_origin: "Original text",
+    timeline_note:
+      "Linking decrees to articles relies on available official footnotes; full details should be checked against the official source.",
+    share: "Share card",
   },
 };
 
