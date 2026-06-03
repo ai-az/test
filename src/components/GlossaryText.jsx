@@ -62,7 +62,7 @@ function GlossaryTerm({ label, entry }) {
         onFocus={() => show(0)}
         onBlur={hide}
         onClick={() => setOpen((v) => !v)}
-        className="cursor-help border-0 bg-transparent p-0 font-[inherit] text-[inherit] text-[var(--color-accent)] underline decoration-dotted decoration-from-font underline-offset-4"
+        className="cursor-help border-0 bg-transparent p-0 font-[inherit] text-[inherit] text-[var(--c-accent)] underline decoration-dotted decoration-from-font underline-offset-4"
       >
         {label}
       </button>
@@ -70,10 +70,10 @@ function GlossaryTerm({ label, entry }) {
         <span
           id={tipId}
           role="tooltip"
-          className="reveal absolute bottom-full z-40 mb-2 block w-64 max-w-[80vw] rounded-[var(--radius-md)] border border-[var(--color-rule)] bg-[var(--color-paper)] p-3 text-start text-[var(--text-sm)] leading-relaxed text-[var(--color-ink-soft)] shadow-lg"
+          className="reveal absolute bottom-full z-40 mb-2 block w-64 max-w-[80vw] rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-paper)] p-3 text-start text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)] shadow-lg"
           style={{ insetInlineStart: 0 }}
         >
-          <span className="font-display mb-1 block text-[var(--text-xs)] font-bold text-[var(--color-accent)]">
+          <span className="font-display mb-1 block text-[var(--fz-xs)] font-bold text-[var(--c-accent)]">
             {entry.term} · تعريف نظامي
           </span>
           {entry.short}

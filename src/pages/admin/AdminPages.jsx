@@ -27,37 +27,37 @@ export default function AdminPages() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-[var(--radius-md)] border border-[var(--color-rule)] p-4">
+      <div className="rounded-[var(--rad-md)] border border-[var(--c-rule)] p-4">
         <p className="eyebrow mb-3">{editing ? "تعديل صفحة" : "صفحة جديدة"}</p>
         <div className="space-y-3">
           <label className="flex flex-col gap-1">
-            <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">العنوان *</span>
+            <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">العنوان *</span>
             <input
               value={form.title}
               onChange={(e) => set("title", e.target.value)}
-              className="rounded-[var(--radius-sm)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-3 py-2 text-[var(--text-base)] outline-none focus:border-[var(--color-accent)]"
+              className="rounded-[var(--rad-sm)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-3 py-2 text-[var(--fz-base)] outline-none focus:border-[var(--c-accent)]"
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+            <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
               المُعرّف (اختياري) — الرابط: /p/&lt;المعرّف&gt;
             </span>
             <input
               value={form.slug}
               onChange={(e) => set("slug", e.target.value)}
               placeholder="يُولَّد تلقائياً من العنوان"
-              className="rounded-[var(--radius-sm)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-3 py-2 text-[var(--text-sm)] outline-none placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)]"
+              className="rounded-[var(--rad-sm)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-3 py-2 text-[var(--fz-sm)] outline-none placeholder:text-[var(--c-ink-faint)] focus:border-[var(--c-accent)]"
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+            <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
               المحتوى — يدعم: # عنوان · ## عنوان فرعي · - عنصر قائمة · سطر فارغ = فقرة
             </span>
             <textarea
               rows={8}
               value={form.body}
               onChange={(e) => set("body", e.target.value)}
-              className="rounded-[var(--radius-sm)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-3 py-2 text-[var(--text-sm)] leading-relaxed outline-none focus:border-[var(--color-accent)]"
+              className="rounded-[var(--rad-sm)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-3 py-2 text-[var(--fz-sm)] leading-relaxed outline-none focus:border-[var(--c-accent)]"
             />
           </label>
           <div className="flex gap-3">
@@ -65,7 +65,7 @@ export default function AdminPages() {
               type="button"
               onClick={onSave}
               disabled={!form.title.trim()}
-              className="rounded-full bg-[var(--color-accent)] px-5 py-2 text-[var(--text-sm)] text-[var(--color-paper)] disabled:opacity-40"
+              className="rounded-full bg-[var(--c-accent)] px-5 py-2 text-[var(--fz-sm)] text-[var(--c-paper)] disabled:opacity-40"
             >
               حفظ الصفحة
             </button>
@@ -76,7 +76,7 @@ export default function AdminPages() {
                   setForm(blank);
                   setEditing(false);
                 }}
-                className="rounded-full border border-[var(--color-rule)] px-5 py-2 text-[var(--text-sm)] text-[var(--color-ink-soft)]"
+                className="rounded-full border border-[var(--c-rule)] px-5 py-2 text-[var(--fz-sm)] text-[var(--c-ink-soft)]"
               >
                 إلغاء
               </button>
@@ -86,18 +86,18 @@ export default function AdminPages() {
       </div>
 
       <section>
-        <h2 className="font-display mb-3 text-[var(--text-sm)] font-bold">الصفحات ({pages.length})</h2>
+        <h2 className="font-display mb-3 text-[var(--fz-sm)] font-bold">الصفحات ({pages.length})</h2>
         {pages.length === 0 ? (
-          <p className="text-[var(--text-sm)] text-[var(--color-ink-faint)]">لا توجد صفحات مخصّصة بعد.</p>
+          <p className="text-[var(--fz-sm)] text-[var(--c-ink-faint)]">لا توجد صفحات مخصّصة بعد.</p>
         ) : (
-          <ul className="divide-y divide-[var(--color-rule)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-rule)]">
+          <ul className="divide-y divide-[var(--c-rule)] overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)]">
             {pages.map((p) => (
               <li key={p.slug} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
-                  <Link to={`/p/${p.slug}`} className="block truncate text-[var(--text-base)] text-[var(--color-ink)] hover:text-[var(--color-accent)]">
+                  <Link to={`/p/${p.slug}`} className="block truncate text-[var(--fz-base)] text-[var(--c-ink)] hover:text-[var(--c-accent)]">
                     {p.title}
                   </Link>
-                  <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">/p/{p.slug}</span>
+                  <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">/p/{p.slug}</span>
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <button
@@ -107,14 +107,14 @@ export default function AdminPages() {
                       setEditing(true);
                       window.scrollTo(0, 0);
                     }}
-                    className="rounded-full border border-[var(--color-rule)] px-3 py-1 text-[var(--text-xs)] text-[var(--color-ink-soft)] hover:border-[var(--color-accent)]"
+                    className="rounded-full border border-[var(--c-rule)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-ink-soft)] hover:border-[var(--c-accent)]"
                   >
                     تعديل
                   </button>
                   <button
                     type="button"
                     onClick={() => deletePage(p.slug)}
-                    className="rounded-full border border-[var(--color-rule)] px-3 py-1 text-[var(--text-xs)] text-[var(--color-ink-soft)] hover:border-[var(--color-amend)] hover:text-[var(--color-amend)]"
+                    className="rounded-full border border-[var(--c-rule)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-ink-soft)] hover:border-[var(--c-amend)] hover:text-[var(--c-amend)]"
                   >
                     حذف
                   </button>

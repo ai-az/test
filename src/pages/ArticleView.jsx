@@ -42,34 +42,34 @@ export default function ArticleView() {
   return (
     <article className="mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
       {/* Breadcrumb: الباب ← الفصل ← المادة */}
-      <nav className="flex flex-wrap items-center gap-2 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
-        <Link to="/chapters" className="hover:text-[var(--color-accent)]">
+      <nav className="flex flex-wrap items-center gap-2 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
+        <Link to="/chapters" className="hover:text-[var(--c-accent)]">
           {t("nav_chapters")}
         </Link>
         <span aria-hidden="true">/</span>
         <Link
           to={`/chapter/${article.chapter.number}`}
-          className="hover:text-[var(--color-accent)]"
+          className="hover:text-[var(--c-accent)]"
         >
           {t("chapter_word")} {ordinalAr(article.chapter.number)} · {article.chapter.title}
         </Link>
         {article.section && (
           <>
             <span aria-hidden="true">/</span>
-            <span className="text-[var(--color-ink-soft)]">{article.section.title}</span>
+            <span className="text-[var(--c-ink-soft)]">{article.section.title}</span>
           </>
         )}
       </nav>
 
       {/* Specimen header: huge numeral */}
-      <header className="reveal mt-6 flex flex-wrap items-end justify-between gap-6 border-b border-[var(--color-rule)] pb-8">
+      <header className="reveal mt-6 flex flex-wrap items-end justify-between gap-6 border-b border-[var(--c-rule)] pb-8">
         <div className="flex items-end gap-4">
-          <span className="specimen-numeral">{numLabel}</span>
+          <span className="specimen-numeral text-[var(--c-accent)]">{numLabel}</span>
           <div className="pb-2">
             <p className="eyebrow">{t("article_word")}</p>
             {article.isAmended && (
-              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-amend-soft)] px-3 py-1 text-[var(--text-xs)] text-[var(--color-amend)]">
-                <span className="size-1.5 rounded-full bg-[var(--color-amend)]" />
+              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--c-amend-soft)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-amend)]">
+                <span className="size-1.5 rounded-full bg-[var(--c-amend)]" />
                 {t("amended")}
               </span>
             )}
@@ -81,10 +81,10 @@ export default function ArticleView() {
             type="button"
             onClick={() => toggle(id)}
             aria-pressed={bookmarked}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[var(--text-xs)] transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[var(--fz-xs)] transition-colors ${
               bookmarked
-                ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"
-                : "border-[var(--color-rule)] text-[var(--color-ink-soft)] hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+                ? "border-[var(--c-accent)] bg-[var(--c-accent-soft)] text-[var(--c-accent)]"
+                : "border-[var(--c-rule)] text-[var(--c-ink-soft)] hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
             }`}
           >
             <BookmarkIcon filled={bookmarked} />
@@ -93,14 +93,14 @@ export default function ArticleView() {
           <button
             type="button"
             onClick={copy}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
           >
             {copied ? t("copied") : t("copy")}
           </button>
           <button
             type="button"
             onClick={() => downloadArticleCard(article, numLabel)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
           >
             {t("share")}
           </button>
@@ -110,8 +110,8 @@ export default function ArticleView() {
       {/* Official text */}
       <section className="mt-9">
         <SectionLabel>{t("official_text")}</SectionLabel>
-        <div className="mt-3 rounded-[var(--radius-md)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-6">
-          <p className="text-[var(--text-lg)] leading-[var(--leading-prose)] text-[var(--color-ink)]">
+        <div className="mt-3 rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] p-6">
+          <p className="text-[var(--fz-lg)] leading-[var(--lh-prose)] text-[var(--c-ink)]">
             <GlossaryText
               text={article.officialText}
               enableTooltips={article.id !== GLOSSARY_ARTICLE}
@@ -124,19 +124,19 @@ export default function ArticleView() {
             <button
               type="button"
               onClick={() => setShowOriginal((v) => !v)}
-              className="text-[var(--text-xs)] text-[var(--color-ink-faint)] underline decoration-dashed underline-offset-4 transition-colors hover:text-[var(--color-accent)]"
+              className="text-[var(--fz-xs)] text-[var(--c-ink-faint)] underline decoration-dashed underline-offset-4 transition-colors hover:text-[var(--c-accent)]"
             >
               {t("show_original")} {showOriginal ? "▲" : "▼"}
             </button>
             {showOriginal && (
-              <div className="mt-2 rounded-[var(--radius-sm)] border border-dashed border-[var(--color-rule)] bg-[var(--color-paper)] p-4 text-[var(--text-sm)] leading-relaxed text-[var(--color-ink-soft)]">
+              <div className="mt-2 rounded-[var(--rad-sm)] border border-dashed border-[var(--c-rule)] bg-[var(--c-paper)] p-4 text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)]">
                 {article.originalText || (
-                  <span className="italic text-[var(--color-ink-faint)]">
+                  <span className="italic text-[var(--c-ink-faint)]">
                     {t("original_pending")}
                   </span>
                 )}
                 {article.amendmentInfo && (
-                  <p className="mt-3 border-t border-[var(--color-rule)] pt-3 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+                  <p className="mt-3 border-t border-[var(--c-rule)] pt-3 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
                     {article.amendmentInfo}
                   </p>
                 )}
@@ -153,7 +153,7 @@ export default function ArticleView() {
             <SectionLabel accent>{t("simply")}</SectionLabel>
             <InformalBadge />
           </div>
-          <p className="mt-3 border-e-2 border-[var(--color-accent)] bg-[var(--color-accent-soft)] py-3 pe-4 ps-5 text-[var(--text-base)] leading-[var(--leading-prose)] text-[var(--color-ink)]">
+          <p className="mt-3 border-e-2 border-[var(--c-accent)] bg-[var(--c-accent-soft)] py-3 pe-4 ps-5 text-[var(--fz-base)] leading-[var(--lh-prose)] text-[var(--c-ink)]">
             {article.simplifiedAr}
           </p>
         </section>
@@ -166,16 +166,16 @@ export default function ArticleView() {
             <SectionLabel>{t("example")}</SectionLabel>
             <InformalBadge />
           </div>
-          <div className="mt-3 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-rule)]">
-            <div className="border-b border-[var(--color-rule)] bg-[var(--color-paper)] p-5">
+          <div className="mt-3 overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)]">
+            <div className="border-b border-[var(--c-rule)] bg-[var(--c-paper)] p-5">
               <p className="eyebrow mb-1.5">{t("scenario")}</p>
-              <p className="text-[var(--text-base)] leading-relaxed text-[var(--color-ink)]">
+              <p className="text-[var(--fz-base)] leading-relaxed text-[var(--c-ink)]">
                 {article.example.scenario}
               </p>
             </div>
-            <div className="bg-[var(--color-paper-2)] p-5">
-              <p className="eyebrow mb-1.5 text-[var(--color-accent)]">{t("outcome")}</p>
-              <p className="text-[var(--text-base)] leading-relaxed text-[var(--color-ink)]">
+            <div className="bg-[var(--c-paper-2)] p-5">
+              <p className="eyebrow mb-1.5 text-[var(--c-accent)]">{t("outcome")}</p>
+              <p className="text-[var(--fz-base)] leading-relaxed text-[var(--c-ink)]">
                 {article.example.outcome}
               </p>
             </div>
@@ -191,7 +191,7 @@ export default function ArticleView() {
             {article.keywords.map((k) => (
               <span
                 key={k}
-                className="rounded-full border border-[var(--color-rule)] px-3 py-1 text-[var(--text-xs)] text-[var(--color-ink-soft)]"
+                className="rounded-full border border-[var(--c-rule)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-ink-soft)]"
               >
                 {k}
               </span>
@@ -211,7 +211,7 @@ export default function ArticleView() {
                 <Link
                   key={r}
                   to={`/article/${r}`}
-                  className="font-display rounded-[var(--radius-sm)] border border-[var(--color-rule)] px-3 py-1.5 text-[var(--text-sm)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+                  className="font-display rounded-[var(--rad-sm)] border border-[var(--c-rule)] px-3 py-1.5 text-[var(--fz-sm)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
                 >
                   {t("article_word")} {displayArticleNumber(articles[r], lang)}
                 </Link>
@@ -234,7 +234,7 @@ export default function ArticleView() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
           >
             {t("print_pdf")}
           </button>
@@ -242,7 +242,7 @@ export default function ArticleView() {
       </section>
 
       {/* Prev / next */}
-      <nav className="no-print mt-12 flex items-stretch justify-between gap-3 border-t border-[var(--color-rule)] pt-6">
+      <nav className="no-print mt-12 flex items-stretch justify-between gap-3 border-t border-[var(--c-rule)] pt-6">
         <AdjacentLink to={prev} dir="prev" label={t("prev")} />
         <AdjacentLink to={next} dir="next" label={t("next")} />
       </nav>
@@ -266,7 +266,7 @@ function CopyButton({ label, getText }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
     >
       {done ? t("copied") : label}
     </button>
@@ -283,38 +283,38 @@ function PendingArticle({ id }) {
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <nav className="flex flex-wrap items-center gap-2 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
-        <Link to="/chapters" className="hover:text-[var(--color-accent)]">
+      <nav className="flex flex-wrap items-center gap-2 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
+        <Link to="/chapters" className="hover:text-[var(--c-accent)]">
           {t("nav_chapters")}
         </Link>
         {chapter && (
           <>
             <span aria-hidden="true">/</span>
-            <Link to={`/chapter/${chapter.number}`} className="hover:text-[var(--color-accent)]">
+            <Link to={`/chapter/${chapter.number}`} className="hover:text-[var(--c-accent)]">
               {t("chapter_word")} {ordinalAr(chapter.number)} · {chapter.title}
             </Link>
           </>
         )}
       </nav>
 
-      <div className="reveal mt-10 flex flex-col items-center rounded-[var(--radius-md)] border border-dashed border-[var(--color-rule)] bg-[var(--color-paper-2)] px-6 py-16 text-center">
-        <span className="specimen-numeral text-[var(--color-ink-faint)]">{label}</span>
+      <div className="reveal mt-10 flex flex-col items-center rounded-[var(--rad-md)] border border-dashed border-[var(--c-rule)] bg-[var(--c-paper-2)] px-6 py-16 text-center">
+        <span className="specimen-numeral text-[var(--c-ink-faint)]">{label}</span>
         <p className="eyebrow mt-2">{t("article_word")} {label}</p>
-        <p className="mt-4 max-w-md text-[var(--text-base)] text-[var(--color-ink-soft)]">
+        <p className="mt-4 max-w-md text-[var(--fz-base)] text-[var(--c-ink-soft)]">
           {t("article_pending_full")}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {chapter && (
             <Link
               to={`/chapter/${chapter.number}`}
-              className="rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-[var(--text-sm)] text-[var(--color-paper)] transition-transform hover:-translate-y-0.5"
+              className="rounded-full bg-[var(--c-ink)] px-5 py-2.5 text-[var(--fz-sm)] text-[var(--c-paper)] transition-transform hover:-translate-y-0.5"
             >
               {chapter.title}
             </Link>
           )}
           <Link
             to="/coverage"
-            className="rounded-full border border-[var(--color-rule)] px-5 py-2.5 text-[var(--text-sm)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+            className="rounded-full border border-[var(--c-rule)] px-5 py-2.5 text-[var(--fz-sm)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
           >
             {t("coverage_title")}
           </Link>
@@ -327,13 +327,13 @@ function PendingArticle({ id }) {
 function SectionLabel({ children, accent }) {
   return (
     <h2
-      className={`font-display flex items-center gap-2 text-[var(--text-sm)] font-bold ${
-        accent ? "text-[var(--color-accent)]" : "text-[var(--color-ink)]"
+      className={`font-display flex items-center gap-2 text-[var(--fz-sm)] font-bold ${
+        accent ? "text-[var(--c-accent)]" : "text-[var(--c-ink)]"
       }`}
     >
       <span
         className={`h-3 w-1 rounded-full ${
-          accent ? "bg-[var(--color-accent)]" : "bg-[var(--color-ink-faint)]"
+          accent ? "bg-[var(--c-accent)]" : "bg-[var(--c-ink-faint)]"
         }`}
       />
       {children}
@@ -344,7 +344,7 @@ function SectionLabel({ children, accent }) {
 function InformalBadge() {
   const { t } = useI18n();
   return (
-    <span className="rounded-full bg-[var(--color-paper-3)] px-2.5 py-0.5 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+    <span className="rounded-full bg-[var(--c-paper-3)] px-2.5 py-0.5 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
       {t("informal_badge")}
     </span>
   );
@@ -372,14 +372,14 @@ function AdjacentLink({ to, dir, label }) {
   return (
     <Link
       to={`/article/${target.id}`}
-      className={`group flex flex-1 flex-col gap-1 rounded-[var(--radius-md)] border border-[var(--color-rule)] p-4 transition-colors hover:border-[var(--color-accent)] ${
+      className={`group flex flex-1 flex-col gap-1 rounded-[var(--rad-md)] border border-[var(--c-rule)] p-4 transition-colors hover:border-[var(--c-accent)] ${
         dir === "next" ? "items-start text-start" : "items-end text-end"
       }`}
     >
-      <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+      <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
         {arrow} {label}
       </span>
-      <span className="font-display text-[var(--text-lg)] font-bold text-[var(--color-ink)] transition-colors group-hover:text-[var(--color-accent)]">
+      <span className="font-display text-[var(--fz-lg)] font-bold text-[var(--c-ink)] transition-colors group-hover:text-[var(--c-accent)]">
         {displayArticleNumber(target, lang)}
       </span>
     </Link>

@@ -13,20 +13,20 @@ export default function Coverage() {
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-8 border-b border-[var(--color-rule)] pb-8">
+      <header className="reveal mb-8 border-b border-[var(--c-rule)] pb-8">
         <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-3 text-[var(--text-4xl)] font-black leading-none">
+        <h1 className="font-display mt-3 text-[var(--fz-4xl)] font-black leading-none">
           {t("coverage_title")}
         </h1>
-        <p className="mt-4 max-w-xl text-[var(--text-base)] text-[var(--color-ink-soft)]">
+        <p className="mt-4 max-w-xl text-[var(--fz-base)] text-[var(--c-ink-soft)]">
           {t("coverage_lead")}
         </p>
 
         <div className="mt-6 flex items-end gap-4">
-          <span className="font-display text-[var(--text-display-xl)] font-black leading-none text-[var(--color-accent)]">
+          <span className="font-display text-[var(--fz-display-xl)] font-black leading-none text-[var(--c-accent)]">
             {displayNumber(pct, lang)}٪
           </span>
-          <span className="pb-2 text-[var(--text-sm)] text-[var(--color-ink-faint)]">
+          <span className="pb-2 text-[var(--fz-sm)] text-[var(--c-ink-faint)]">
             {displayNumber(enteredCount, lang)} {t("coverage_of")}{" "}
             {displayNumber(TOTAL_ARTICLE_SLOTS, lang)} {t("stat_articles")}
           </span>
@@ -45,26 +45,26 @@ export default function Coverage() {
           return (
             <li
               key={c.number}
-              className="rounded-[var(--radius-md)] border border-[var(--color-rule)] p-5"
+              className="rounded-[var(--rad-md)] border border-[var(--c-rule)] p-5"
             >
               <div className="flex items-baseline justify-between gap-3">
                 <Link
                   to={`/chapter/${c.number}`}
-                  className="font-display text-[var(--text-base)] text-[var(--color-ink)] hover:text-[var(--color-accent)]"
+                  className="font-display text-[var(--fz-base)] text-[var(--c-ink)] hover:text-[var(--c-accent)]"
                 >
-                  <span className="text-[var(--color-ink-faint)]">
+                  <span className="text-[var(--c-ink-faint)]">
                     {displayNumber(c.number, lang)} ·{" "}
                   </span>
                   {c.title}
                 </Link>
-                <span className="shrink-0 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+                <span className="shrink-0 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
                   {displayNumber(entered.length, lang)}/{displayNumber(slots.length, lang)}
                 </span>
               </div>
               <Bar value={entered.length} total={slots.length} />
               {pending.length > 0 && entered.length > 0 && (
                 <details className="mt-3">
-                  <summary className="cursor-pointer text-[var(--text-xs)] text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]">
+                  <summary className="cursor-pointer text-[var(--fz-xs)] text-[var(--c-ink-faint)] hover:text-[var(--c-accent)]">
                     {t("coverage_pending")} ({displayNumber(pending.length, lang)})
                   </summary>
                   <div className="mt-2 flex flex-wrap gap-1.5">
@@ -74,7 +74,7 @@ export default function Coverage() {
                         <Link
                           key={id}
                           to={`/article/${id}`}
-                          className="font-display rounded border border-dashed border-[var(--color-rule)] px-2 py-0.5 text-[var(--text-xs)] text-[var(--color-ink-faint)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                          className="font-display rounded border border-dashed border-[var(--c-rule)] px-2 py-0.5 text-[var(--fz-xs)] text-[var(--c-ink-faint)] hover:border-[var(--c-accent)] hover:text-[var(--c-accent)]"
                         >
                           {displayNumber(s.n, lang)}
                           {s.mukarrar ? " م" : ""}
@@ -95,9 +95,9 @@ export default function Coverage() {
 function Bar({ value, total }) {
   const pct = total ? Math.round((value / total) * 100) : 0;
   return (
-    <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-paper-3)]">
+    <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--c-paper-3)]">
       <div
-        className="h-full rounded-full bg-[var(--color-accent)] transition-[width] duration-500"
+        className="h-full rounded-full bg-[var(--c-accent)] transition-[width] duration-500"
         style={{ width: `${pct}%` }}
       />
     </div>

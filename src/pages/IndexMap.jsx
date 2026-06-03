@@ -13,21 +13,21 @@ export default function IndexMap() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-6 border-b border-[var(--color-rule)] pb-6">
+      <header className="reveal mb-6 border-b border-[var(--c-rule)] pb-6">
         <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-2 text-[var(--text-4xl)] font-black leading-none">
+        <h1 className="font-display mt-2 text-[var(--fz-4xl)] font-black leading-none">
           {t("index_title")}
         </h1>
-        <p className="mt-4 max-w-xl text-[var(--text-base)] text-[var(--color-ink-soft)]">
+        <p className="mt-4 max-w-xl text-[var(--fz-base)] text-[var(--c-ink-soft)]">
           {t("index_lead")}
         </p>
-        <div className="mt-4 flex flex-wrap gap-4 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+        <div className="mt-4 flex flex-wrap gap-4 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
           <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded border border-[var(--color-accent)] bg-[var(--color-accent-soft)]" />
+            <span className="size-3 rounded border border-[var(--c-accent)] bg-[var(--c-accent-soft)]" />
             {t("index_available")}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded border border-dashed border-[var(--color-rule)]" />
+            <span className="size-3 rounded border border-dashed border-[var(--c-rule)]" />
             {t("index_pending")}
           </span>
         </div>
@@ -49,13 +49,13 @@ export default function IndexMap() {
           const slots = chapterSlots(c.number);
           return (
             <section key={c.number}>
-              <h2 className="flex items-baseline gap-3 border-b border-[var(--color-rule)] pb-2">
-                <span className="font-display text-[var(--text-2xl)] font-black text-[var(--color-accent)]">
+              <h2 className="flex items-baseline gap-3 border-b border-[var(--c-rule)] pb-2">
+                <span className="font-display text-[var(--fz-2xl)] font-black text-[var(--c-accent)]">
                   {displayNumber(c.number, lang)}
                 </span>
                 <Link
                   to={`/chapter/${c.number}`}
-                  className="text-[var(--text-lg)] text-[var(--color-ink)] hover:text-[var(--color-accent)]"
+                  className="text-[var(--fz-lg)] text-[var(--c-ink)] hover:text-[var(--c-accent)]"
                 >
                   {c.title}
                 </Link>
@@ -69,16 +69,16 @@ export default function IndexMap() {
                       key={id}
                       to={`/article/${id}`}
                       title={entered ? entered.officialText.slice(0, 80) : t("article_pending_label")}
-                      className={`font-display inline-flex items-center gap-1 rounded-[var(--radius-sm)] border px-2.5 py-1 text-[var(--text-sm)] transition-colors ${
+                      className={`font-display inline-flex items-center gap-1 rounded-[var(--rad-sm)] border px-2.5 py-1 text-[var(--fz-sm)] transition-colors ${
                         entered
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-paper)]"
-                          : "border-dashed border-[var(--color-rule)] text-[var(--color-ink-faint)] hover:border-[var(--color-accent)]"
+                          ? "border-[var(--c-accent)] bg-[var(--c-accent-soft)] text-[var(--c-accent)] hover:bg-[var(--c-accent)] hover:text-[var(--c-paper)]"
+                          : "border-dashed border-[var(--c-rule)] text-[var(--c-ink-faint)] hover:border-[var(--c-accent)]"
                       }`}
                     >
                       {displayNumber(s.n, lang)}
                       {s.mukarrar ? " م" : ""}
                       {entered?.isAmended && (
-                        <span className="size-1.5 rounded-full bg-[var(--color-amend)]" />
+                        <span className="size-1.5 rounded-full bg-[var(--c-amend)]" />
                       )}
                     </Link>
                   );
@@ -97,10 +97,10 @@ function Chip({ active, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`font-display rounded-full border px-3.5 py-1.5 text-[var(--text-sm)] transition-colors ${
+      className={`font-display rounded-full border px-3.5 py-1.5 text-[var(--fz-sm)] transition-colors ${
         active
-          ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"
-          : "border-[var(--color-rule)] text-[var(--color-ink-soft)] hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+          ? "border-[var(--c-accent)] bg-[var(--c-accent-soft)] text-[var(--c-accent)]"
+          : "border-[var(--c-rule)] text-[var(--c-ink-soft)] hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
       }`}
     >
       {children}

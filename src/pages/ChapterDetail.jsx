@@ -27,22 +27,22 @@ export default function ChapterDetail() {
         ]}
       />
 
-      <header className="reveal mt-6 flex items-start gap-5 border-b border-[var(--color-rule)] pb-8">
-        <span className="specimen-numeral text-[var(--text-4xl)] text-[var(--color-accent)]">
+      <header className="reveal mt-6 flex items-start gap-5 border-b border-[var(--c-rule)] pb-8">
+        <span className="specimen-numeral text-[var(--fz-4xl)] text-[var(--c-accent)]">
           {displayNumber(chapter.number, lang)}
         </span>
         <div className="min-w-0 pt-1">
           <p className="eyebrow">
             {t("chapter_word")} {ordinalAr(chapter.number) || chapter.number}
           </p>
-          <h1 className="font-display mt-1 text-[var(--text-2xl)] font-bold leading-tight">
+          <h1 className="font-display mt-1 text-[var(--fz-2xl)] font-bold leading-tight">
             {chapter.title}
           </h1>
         </div>
       </header>
 
       {entered.length === 0 && (
-        <p className="mt-8 rounded-[var(--radius-md)] border border-dashed border-[var(--color-rule)] bg-[var(--color-paper-2)] px-5 py-6 text-[var(--text-sm)] text-[var(--color-ink-soft)]">
+        <p className="mt-8 rounded-[var(--rad-md)] border border-dashed border-[var(--c-rule)] bg-[var(--c-paper-2)] px-5 py-6 text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
           {t("article_pending_note")}
         </p>
       )}
@@ -51,16 +51,16 @@ export default function ChapterDetail() {
         const arts = bySection(s.number);
         return (
           <section key={s.number} className="mt-10">
-            <h2 className="flex items-baseline gap-2 text-[var(--text-base)] text-[var(--color-ink-soft)]">
+            <h2 className="flex items-baseline gap-2 text-[var(--fz-base)] text-[var(--c-ink-soft)]">
               <span className="eyebrow">
                 {t("section_word")} {ordinalAr(s.number) || s.number}
               </span>
-              <span className="text-[var(--color-ink)]">{s.title}</span>
+              <span className="text-[var(--c-ink)]">{s.title}</span>
             </h2>
             {arts.length > 0 ? (
               <ArticleList articles={arts} />
             ) : (
-              <p className="mt-3 text-[var(--text-sm)] text-[var(--color-ink-faint)]">
+              <p className="mt-3 text-[var(--fz-sm)] text-[var(--c-ink-faint)]">
                 {t("article_pending_note")}
               </p>
             )}
@@ -77,22 +77,22 @@ function ArticleList({ articles, className = "" }) {
   const { t, lang } = useI18n();
   return (
     <ul
-      className={`mt-4 divide-y divide-[var(--color-rule)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-rule)] ${className}`}
+      className={`mt-4 divide-y divide-[var(--c-rule)] overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] ${className}`}
     >
       {articles.map((a) => (
         <li key={a.id}>
           <Link
             to={`/article/${a.id}`}
-            className="group flex items-center gap-4 bg-[var(--color-paper)] px-5 py-4 transition-colors duration-150 hover:bg-[var(--color-paper-2)]"
+            className="group flex items-center gap-4 bg-[var(--c-paper)] px-5 py-4 transition-colors duration-150 hover:bg-[var(--c-paper-2)]"
           >
-            <span className="font-display min-w-9 text-[var(--text-xl)] font-black text-[var(--color-ink-faint)] transition-colors group-hover:text-[var(--color-accent)]">
+            <span className="font-display min-w-9 text-[var(--fz-xl)] font-black text-[var(--c-ink-faint)] transition-colors group-hover:text-[var(--c-accent)]">
               {displayNumber(a.articleNumber, lang)}
             </span>
             <span className="min-w-0 flex-1">
               <span className="eyebrow block">
                 {t("article_word")} {displayArticleNumber(a, lang)}
               </span>
-              <span className="mt-0.5 line-clamp-2 block text-[var(--text-sm)] leading-relaxed text-[var(--color-ink-soft)]">
+              <span className="mt-0.5 line-clamp-2 block text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)]">
                 {a.officialText}
               </span>
             </span>
@@ -107,7 +107,7 @@ function ArticleList({ articles, className = "" }) {
 function AmendedTag() {
   const { t } = useI18n();
   return (
-    <span className="shrink-0 rounded-full bg-[var(--color-amend-soft)] px-2.5 py-1 text-[var(--text-xs)] text-[var(--color-amend)]">
+    <span className="shrink-0 rounded-full bg-[var(--c-amend-soft)] px-2.5 py-1 text-[var(--fz-xs)] text-[var(--c-amend)]">
       {t("amended")}
     </span>
   );
@@ -115,15 +115,15 @@ function AmendedTag() {
 
 function Breadcrumb({ items }) {
   return (
-    <nav className="flex flex-wrap items-center gap-2 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+    <nav className="flex flex-wrap items-center gap-2 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
       {items.map((it, i) => (
         <span key={i} className="flex items-center gap-2">
           {it.to ? (
-            <Link to={it.to} className="transition-colors hover:text-[var(--color-accent)]">
+            <Link to={it.to} className="transition-colors hover:text-[var(--c-accent)]">
               {it.label}
             </Link>
           ) : (
-            <span className="text-[var(--color-ink-soft)]">{it.label}</span>
+            <span className="text-[var(--c-ink-soft)]">{it.label}</span>
           )}
           {i < items.length - 1 && <span aria-hidden="true">/</span>}
         </span>

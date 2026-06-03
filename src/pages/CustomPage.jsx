@@ -12,7 +12,7 @@ function renderBody(body = "") {
       return (
         <ul key={i} className="my-4 list-disc space-y-1 pe-6">
           {lines.map((l, j) => (
-            <li key={j} className="text-[var(--color-ink-soft)]">
+            <li key={j} className="text-[var(--c-ink-soft)]">
               {l.replace(/^-\s+/, "")}
             </li>
           ))}
@@ -22,18 +22,18 @@ function renderBody(body = "") {
     const t = block.trim();
     if (t.startsWith("## "))
       return (
-        <h3 key={i} className="font-display mt-8 mb-2 text-[var(--text-xl)] font-bold">
+        <h3 key={i} className="font-display mt-8 mb-2 text-[var(--fz-xl)] font-bold">
           {t.slice(3)}
         </h3>
       );
     if (t.startsWith("# "))
       return (
-        <h2 key={i} className="font-display mt-8 mb-2 text-[var(--text-2xl)] font-bold">
+        <h2 key={i} className="font-display mt-8 mb-2 text-[var(--fz-2xl)] font-bold">
           {t.slice(2)}
         </h2>
       );
     return (
-      <p key={i} className="my-3 leading-[var(--leading-prose)] text-[var(--color-ink-soft)]">
+      <p key={i} className="my-3 leading-[var(--lh-prose)] text-[var(--c-ink-soft)]">
         {block.split("\n").map((l, j) => (
           <span key={j}>
             {l}
@@ -53,13 +53,13 @@ export default function CustomPage() {
 
   return (
     <article className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-8 border-b border-[var(--color-rule)] pb-6">
+      <header className="reveal mb-8 border-b border-[var(--c-rule)] pb-6">
         <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-3 text-[var(--text-4xl)] font-black leading-tight">
+        <h1 className="font-display mt-3 text-[var(--fz-4xl)] font-black leading-tight">
           {page.title}
         </h1>
       </header>
-      <div className="text-[var(--text-base)]">{renderBody(page.body)}</div>
+      <div className="text-[var(--fz-base)]">{renderBody(page.body)}</div>
     </article>
   );
 }

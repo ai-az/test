@@ -14,10 +14,10 @@ const LINKS = [
 
 function linkClass({ isActive }) {
   return [
-    "relative py-1 text-[var(--text-sm)] transition-colors duration-150",
+    "relative py-1 text-[var(--fz-sm)] transition-colors duration-150",
     isActive
-      ? "text-[var(--color-ink)] after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-[var(--color-accent)]"
-      : "text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]",
+      ? "text-[var(--c-ink)] after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-[var(--c-accent)]"
+      : "text-[var(--c-ink-faint)] hover:text-[var(--c-ink)]",
   ].join(" ");
 }
 
@@ -31,13 +31,13 @@ export default function SiteHeader() {
   }, [pathname]);
 
   return (
-    <header className="no-print sticky top-0 z-30 border-b border-[var(--color-rule)] bg-[var(--color-paper)]/90 backdrop-blur-md">
+    <header className="no-print sticky top-0 z-30 border-b border-[var(--c-rule)] bg-[var(--c-paper)]/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
         <Link to="/" className="flex items-baseline gap-2">
-          <span className="font-display text-[var(--text-lg)] font-bold leading-none text-[var(--color-ink)]">
+          <span className="font-display text-[var(--fz-lg)] font-bold leading-none text-[var(--c-ink)]">
             {t("siteName")}
           </span>
-          <span className="hidden text-[var(--text-xs)] text-[var(--color-ink-faint)] sm:inline">
+          <span className="hidden text-[var(--fz-xs)] text-[var(--c-ink-faint)] sm:inline">
             {t("siteTagline")}
           </span>
         </Link>
@@ -56,8 +56,8 @@ export default function SiteHeader() {
             to="/search"
             aria-label={t("nav_search")}
             className={({ isActive }) =>
-              `grid size-8 place-items-center rounded-full transition-colors hover:bg-[var(--color-paper-3)] ${
-                isActive ? "text-[var(--color-accent)]" : "text-[var(--color-ink-soft)]"
+              `grid size-8 place-items-center rounded-full transition-colors hover:bg-[var(--c-paper-3)] ${
+                isActive ? "text-[var(--c-accent)]" : "text-[var(--c-ink-soft)]"
               }`
             }
           >
@@ -68,7 +68,7 @@ export default function SiteHeader() {
             type="button"
             onClick={toggleTheme}
             aria-label={t("toggle_theme")}
-            className="grid size-8 place-items-center rounded-full text-[var(--color-ink-soft)] transition-colors hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)]"
+            className="grid size-8 place-items-center rounded-full text-[var(--c-ink-soft)] transition-colors hover:bg-[var(--c-paper-3)] hover:text-[var(--c-ink)]"
           >
             {theme === "light" ? <MoonIcon /> : <SunIcon />}
           </button>
@@ -76,7 +76,7 @@ export default function SiteHeader() {
           <button
             type="button"
             onClick={toggleLang}
-            className="rounded-full border border-[var(--color-rule)] px-3 py-1 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+            className="rounded-full border border-[var(--c-rule)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
           >
             {t("toggle_lang")}
           </button>
@@ -87,7 +87,7 @@ export default function SiteHeader() {
             onClick={() => setOpen((v) => !v)}
             aria-label={t("menu")}
             aria-expanded={open}
-            className="grid size-8 place-items-center rounded-full text-[var(--color-ink-soft)] transition-colors hover:bg-[var(--color-paper-3)] hover:text-[var(--color-ink)] lg:hidden"
+            className="grid size-8 place-items-center rounded-full text-[var(--c-ink-soft)] transition-colors hover:bg-[var(--c-paper-3)] hover:text-[var(--c-ink)] lg:hidden"
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
@@ -95,14 +95,14 @@ export default function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="reveal border-t border-[var(--color-rule)] bg-[var(--color-paper)] px-5 py-2 lg:hidden">
+        <nav className="reveal border-t border-[var(--c-rule)] bg-[var(--c-paper)] px-5 py-2 lg:hidden">
           {LINKS.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `block border-b border-[var(--color-rule)] py-3 text-[var(--text-base)] last:border-0 ${
-                  isActive ? "text-[var(--color-accent)]" : "text-[var(--color-ink-soft)]"
+                `block border-b border-[var(--c-rule)] py-3 text-[var(--fz-base)] last:border-0 ${
+                  isActive ? "text-[var(--c-accent)]" : "text-[var(--c-ink-soft)]"
                 }`
               }
             >

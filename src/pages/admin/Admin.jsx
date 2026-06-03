@@ -23,34 +23,34 @@ export default function Admin() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="eyebrow">لوحة التحكم · محلية</p>
-            <h1 className="font-display mt-1 text-[var(--text-2xl)] font-black leading-none">
+            <h1 className="font-display mt-1 text-[var(--fz-2xl)] font-black leading-none">
               إدارة المرجع
             </h1>
           </div>
           <Link
             to="/"
-            className="rounded-full border border-[var(--color-rule)] px-4 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+            className="rounded-full border border-[var(--c-rule)] px-4 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
           >
             ← العودة للموقع
           </Link>
         </div>
-        <p className="mt-3 rounded-[var(--radius-md)] border border-[var(--color-amend-soft)] bg-[var(--color-amend-soft)] px-4 py-3 text-[var(--text-sm)] leading-relaxed text-[var(--color-ink-soft)]">
-          <span className="font-display font-bold text-[var(--color-amend)]">ℹ تنبيه · </span>
+        <p className="mt-3 rounded-[var(--rad-md)] border border-[var(--c-amend-soft)] bg-[var(--c-amend-soft)] px-4 py-3 text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)]">
+          <span className="font-display font-bold text-[var(--c-amend)]">ℹ تنبيه · </span>
           كل التعديلات تُحفظ في متصفّحك فقط (بلا خادم). لتثبيتها بشكل دائم على الموقع
           المنشور: افتح تبويب «البيانات» ← «تصدير»، وأرسل الملف ليُرفَع إلى المستودع.
         </p>
       </header>
 
-      <nav className="mb-8 flex flex-wrap gap-2 border-b border-[var(--color-rule)] pb-3">
+      <nav className="mb-8 flex flex-wrap gap-2 border-b border-[var(--c-rule)] pb-3">
         {TABS.map((tb) => (
           <button
             key={tb.id}
             type="button"
             onClick={() => setTab(tb.id)}
-            className={`font-display rounded-full px-4 py-1.5 text-[var(--text-sm)] transition-colors ${
+            className={`font-display rounded-full px-4 py-1.5 text-[var(--fz-sm)] transition-colors ${
               tab === tb.id
-                ? "bg-[var(--color-ink)] text-[var(--color-paper)]"
-                : "text-[var(--color-ink-soft)] hover:bg-[var(--color-paper-3)]"
+                ? "bg-[var(--c-ink)] text-[var(--c-paper)]"
+                : "text-[var(--c-ink-soft)] hover:bg-[var(--c-paper-3)]"
             }`}
           >
             {tb.label}

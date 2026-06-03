@@ -133,33 +133,33 @@ export default function AdminArticles() {
   return (
     <div className="space-y-6">
       {/* المنتقي */}
-      <div className="rounded-[var(--radius-md)] border border-[var(--color-rule)] p-4">
+      <div className="rounded-[var(--rad-md)] border border-[var(--c-rule)] p-4">
         <p className="eyebrow mb-2">تحميل / إضافة مادة</p>
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1">
-            <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">رقم المادة</span>
+            <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">رقم المادة</span>
             <input
               type="number"
               value={form.n}
               onChange={(e) => set("n", e.target.value)}
-              className="w-28 rounded-[var(--radius-sm)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-3 py-2 text-[var(--text-base)] outline-none focus:border-[var(--color-accent)]"
+              className="w-28 rounded-[var(--rad-sm)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-3 py-2 text-[var(--fz-base)] outline-none focus:border-[var(--c-accent)]"
             />
           </label>
-          <label className="flex items-center gap-2 pb-2 text-[var(--text-sm)] text-[var(--color-ink-soft)]">
+          <label className="flex items-center gap-2 pb-2 text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
             <input type="checkbox" checked={form.mukarrar} onChange={(e) => set("mukarrar", e.target.checked)} />
             مكرر
           </label>
           <button
             type="button"
             onClick={() => form.n && load(Number(form.n), form.mukarrar)}
-            className="rounded-full bg-[var(--color-ink)] px-4 py-2 text-[var(--text-sm)] text-[var(--color-paper)]"
+            className="rounded-full bg-[var(--c-ink)] px-4 py-2 text-[var(--fz-sm)] text-[var(--c-paper)]"
           >
             تحميل
           </button>
         </div>
         {overridden.size > 0 && (
           <div className="mt-3">
-            <p className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">معدَّلة محلياً:</p>
+            <p className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">معدَّلة محلياً:</p>
             <div className="mt-1 flex flex-wrap gap-1.5">
               {[...overridden].map((id) => (
                 <button
@@ -172,7 +172,7 @@ export default function AdminArticles() {
                       setLoadedId(id);
                     }
                   }}
-                  className="font-display rounded border border-[var(--color-accent)] bg-[var(--color-accent-soft)] px-2 py-0.5 text-[var(--text-xs)] text-[var(--color-accent)]"
+                  className="font-display rounded border border-[var(--c-accent)] bg-[var(--c-accent-soft)] px-2 py-0.5 text-[var(--fz-xs)] text-[var(--c-accent)]"
                 >
                   {toArabicDigits(id.replace("م", " م"))}
                 </button>
@@ -183,13 +183,13 @@ export default function AdminArticles() {
       </div>
 
       {loadedId !== null && (
-        <div className="space-y-4 rounded-[var(--radius-md)] border border-[var(--color-rule)] p-4">
+        <div className="space-y-4 rounded-[var(--rad-md)] border border-[var(--c-rule)] p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-display text-[var(--text-lg)] font-bold">
+            <h3 className="font-display text-[var(--fz-lg)] font-bold">
               المادة {toArabicDigits(form.n)} {form.mukarrar ? "مكرر" : ""}
             </h3>
             {overridden.has(loadedId) && (
-              <span className="rounded-full bg-[var(--color-accent-soft)] px-2.5 py-0.5 text-[var(--text-xs)] text-[var(--color-accent)]">
+              <span className="rounded-full bg-[var(--c-accent-soft)] px-2.5 py-0.5 text-[var(--fz-xs)] text-[var(--c-accent)]">
                 معدَّلة محلياً
               </span>
             )}
@@ -214,16 +214,16 @@ export default function AdminArticles() {
           <Field label="مواد ذات صلة (أرقام مفصولة بفاصلة)" value={form.related} onChange={(v) => set("related", v)} />
 
           <Row>
-            <label className="flex items-center gap-2 text-[var(--text-sm)] text-[var(--color-ink-soft)]">
+            <label className="flex items-center gap-2 text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
               <input type="checkbox" checked={form.isAmended} onChange={(e) => set("isAmended", e.target.checked)} />
               مادة معدَّلة
             </label>
-            <label className="flex items-center gap-2 text-[var(--text-sm)] text-[var(--color-ink-soft)]">
+            <label className="flex items-center gap-2 text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
               <span>الحالة:</span>
               <select
                 value={form.status}
                 onChange={(e) => set("status", e.target.value)}
-                className="rounded-[var(--radius-sm)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-2 py-1"
+                className="rounded-[var(--rad-sm)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-2 py-1"
               >
                 <option value="entered">مُدخَلة (تظهر)</option>
                 <option value="pending">قيد الإدخال</option>
@@ -234,12 +234,12 @@ export default function AdminArticles() {
             <Area label="معلومة التعديل" value={form.amendmentInfo} onChange={(v) => set("amendmentInfo", v)} rows={2} />
           )}
 
-          <div className="flex flex-wrap items-center gap-3 border-t border-[var(--color-rule)] pt-4">
+          <div className="flex flex-wrap items-center gap-3 border-t border-[var(--c-rule)] pt-4">
             <button
               type="button"
               onClick={onSave}
               disabled={!form.officialText.trim()}
-              className="rounded-full bg-[var(--color-accent)] px-5 py-2 text-[var(--text-sm)] text-[var(--color-paper)] disabled:opacity-40"
+              className="rounded-full bg-[var(--c-accent)] px-5 py-2 text-[var(--fz-sm)] text-[var(--c-paper)] disabled:opacity-40"
             >
               {saved ? "تم الحفظ ✓" : "حفظ التعديل"}
             </button>
@@ -247,12 +247,12 @@ export default function AdminArticles() {
               <button
                 type="button"
                 onClick={onReset}
-                className="rounded-full border border-[var(--color-rule)] px-5 py-2 text-[var(--text-sm)] text-[var(--color-ink-soft)] hover:border-[var(--color-amend)] hover:text-[var(--color-amend)]"
+                className="rounded-full border border-[var(--c-rule)] px-5 py-2 text-[var(--fz-sm)] text-[var(--c-ink-soft)] hover:border-[var(--c-amend)] hover:text-[var(--c-amend)]"
               >
                 استعادة الأصل
               </button>
             )}
-            <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+            <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
               يُحفظ محلياً — صدّر من تبويب «البيانات» لتثبيته.
             </span>
           </div>
@@ -268,11 +268,11 @@ function Row({ children }) {
 function Field({ label, value, onChange, w = "flex-1 min-w-[12rem]" }) {
   return (
     <label className={`flex flex-col gap-1 ${w}`}>
-      <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">{label}</span>
+      <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-[var(--radius-sm)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-3 py-2 text-[var(--text-sm)] outline-none focus:border-[var(--color-accent)]"
+        className="rounded-[var(--rad-sm)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-3 py-2 text-[var(--fz-sm)] outline-none focus:border-[var(--c-accent)]"
       />
     </label>
   );
@@ -280,12 +280,12 @@ function Field({ label, value, onChange, w = "flex-1 min-w-[12rem]" }) {
 function Area({ label, value, onChange, rows = 3 }) {
   return (
     <label className="flex flex-1 flex-col gap-1">
-      <span className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">{label}</span>
+      <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">{label}</span>
       <textarea
         rows={rows}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-[var(--radius-sm)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] px-3 py-2 text-[var(--text-sm)] leading-relaxed outline-none focus:border-[var(--color-accent)]"
+        className="rounded-[var(--rad-sm)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-3 py-2 text-[var(--fz-sm)] leading-relaxed outline-none focus:border-[var(--c-accent)]"
       />
     </label>
   );

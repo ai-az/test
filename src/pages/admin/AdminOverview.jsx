@@ -57,33 +57,33 @@ export default function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <p className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+      <p className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
         إحصاءات هذا الجهاز فقط (خصوصية تامّة، بلا تتبّع خارجي). للزوّار المجمّعين بعد
         النشر، استخدم لوحة Vercel Web Analytics.
       </p>
 
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-rule)] bg-[var(--color-rule)] sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-rule)] sm:grid-cols-3">
         {cards.map((c) => (
-          <div key={c.label} className="bg-[var(--color-paper)] px-5 py-4">
-            <div className="font-display text-[var(--text-2xl)] font-black text-[var(--color-accent)]">
+          <div key={c.label} className="bg-[var(--c-paper)] px-5 py-4">
+            <div className="font-display text-[var(--fz-2xl)] font-black text-[var(--c-accent)]">
               {typeof c.value === "number" ? toArabicDigits(c.value) : toArabicDigits(c.value)}
             </div>
-            <div className="text-[var(--text-xs)] text-[var(--color-ink-faint)]">{c.label}</div>
+            <div className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">{c.label}</div>
           </div>
         ))}
       </div>
 
       {/* مخطّط آخر ١٤ يوماً */}
       <section>
-        <h2 className="font-display mb-3 text-[var(--text-sm)] font-bold">المشاهدات · آخر ١٤ يوماً</h2>
-        <div className="flex h-28 items-end gap-1.5 rounded-[var(--radius-md)] border border-[var(--color-rule)] p-3">
+        <h2 className="font-display mb-3 text-[var(--fz-sm)] font-bold">المشاهدات · آخر ١٤ يوماً</h2>
+        <div className="flex h-28 items-end gap-1.5 rounded-[var(--rad-md)] border border-[var(--c-rule)] p-3">
           {stats.days.map((d) => (
             <div key={d.day} className="flex flex-1 flex-col items-center gap-1" title={`${d.day}: ${d.count}`}>
               <div
-                className="w-full rounded-t bg-[var(--color-accent)]"
+                className="w-full rounded-t bg-[var(--c-accent)]"
                 style={{ height: `${(d.count / maxDay) * 100}%`, minHeight: d.count ? "3px" : "0" }}
               />
-              <span className="text-[8px] text-[var(--color-ink-faint)]">{toArabicDigits(d.day.slice(8))}</span>
+              <span className="text-[8px] text-[var(--c-ink-faint)]">{toArabicDigits(d.day.slice(8))}</span>
             </div>
           ))}
         </div>
@@ -91,17 +91,17 @@ export default function AdminOverview() {
 
       {/* الأكثر مشاهدة */}
       <section>
-        <h2 className="font-display mb-3 text-[var(--text-sm)] font-bold">الأكثر مشاهدة</h2>
+        <h2 className="font-display mb-3 text-[var(--fz-sm)] font-bold">الأكثر مشاهدة</h2>
         {stats.topPaths.length === 0 ? (
-          <p className="text-[var(--text-sm)] text-[var(--color-ink-faint)]">لا توجد بيانات بعد.</p>
+          <p className="text-[var(--fz-sm)] text-[var(--c-ink-faint)]">لا توجد بيانات بعد.</p>
         ) : (
-          <ul className="divide-y divide-[var(--color-rule)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-rule)]">
+          <ul className="divide-y divide-[var(--c-rule)] overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)]">
             {stats.topPaths.map((p) => (
               <li key={p.path} className="flex items-center justify-between gap-3 px-4 py-2.5">
-                <Link to={p.path} className="text-[var(--text-sm)] text-[var(--color-ink)] hover:text-[var(--color-accent)]">
+                <Link to={p.path} className="text-[var(--fz-sm)] text-[var(--c-ink)] hover:text-[var(--c-accent)]">
                   {labelFor(p.path)}
                 </Link>
-                <span className="font-display text-[var(--text-sm)] font-bold text-[var(--color-ink-soft)]">
+                <span className="font-display text-[var(--fz-sm)] font-bold text-[var(--c-ink-soft)]">
                   {toArabicDigits(p.count)}
                 </span>
               </li>
@@ -117,7 +117,7 @@ export default function AdminOverview() {
           setCleared(true);
           setTimeout(() => setCleared(false), 1500);
         }}
-        className="text-[var(--text-xs)] text-[var(--color-ink-faint)] underline decoration-dashed underline-offset-4 hover:text-[var(--color-amend)]"
+        className="text-[var(--fz-xs)] text-[var(--c-ink-faint)] underline decoration-dashed underline-offset-4 hover:text-[var(--c-amend)]"
       >
         {cleared ? "تم المسح ✓" : "مسح إحصاءات هذا الجهاز"}
       </button>

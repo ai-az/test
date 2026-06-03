@@ -5,15 +5,15 @@ export default function NotFound() {
   const { t } = useI18n();
   return (
     <div className="mx-auto flex max-w-3xl flex-col items-center px-5 py-24 text-center">
-      <span className="font-display text-[var(--text-display)] font-black leading-none text-[var(--color-ink-faint)]">
+      <span className="font-display text-[var(--fz-display)] font-black leading-none text-[var(--c-ink-faint)]">
         ٤٠٤
       </span>
-      <p className="mt-4 text-[var(--text-base)] text-[var(--color-ink-soft)]">
+      <p className="mt-4 text-[var(--fz-base)] text-[var(--c-ink-soft)]">
         الصفحة المطلوبة غير موجودة.
       </p>
       <Link
         to="/"
-        className="mt-6 rounded-full bg-[var(--color-ink)] px-6 py-3 text-[var(--text-sm)] text-[var(--color-paper)] transition-transform hover:-translate-y-0.5"
+        className="mt-6 rounded-full bg-[var(--c-ink)] px-6 py-3 text-[var(--fz-sm)] text-[var(--c-paper)] transition-transform hover:-translate-y-0.5"
       >
         {t("nav_home")}
       </Link>

@@ -17,30 +17,30 @@ export default function SiteFooter() {
   useContentVersion();
   const pages = listPages();
   return (
-    <footer className="no-print mt-auto border-t border-[var(--color-rule)] bg-[var(--color-paper-2)]">
+    <footer className="no-print mt-auto border-t border-[var(--c-rule)] bg-[var(--c-paper-2)]">
       <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
-        <nav className="mb-8 flex flex-wrap gap-x-5 gap-y-2 text-[var(--text-sm)] text-[var(--color-ink-soft)]">
+        <nav className="mb-8 flex flex-wrap gap-x-5 gap-y-2 text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
           {FOOTER_LINKS.map((l) => (
-            <Link key={l.to} to={l.to} className="transition-colors hover:text-[var(--color-accent)]">
+            <Link key={l.to} to={l.to} className="transition-colors hover:text-[var(--c-accent)]">
               {t(l.key)}
             </Link>
           ))}
           {pages.map((p) => (
-            <Link key={p.slug} to={`/p/${p.slug}`} className="transition-colors hover:text-[var(--color-accent)]">
+            <Link key={p.slug} to={`/p/${p.slug}`} className="transition-colors hover:text-[var(--c-accent)]">
               {p.title}
             </Link>
           ))}
-          <Link to="/admin" className="text-[var(--color-ink-faint)] transition-colors hover:text-[var(--color-accent)]">
+          <Link to="/admin" className="text-[var(--c-ink-faint)] transition-colors hover:text-[var(--c-accent)]">
             لوحة التحكم
           </Link>
         </nav>
-        <p className="max-w-2xl text-[var(--text-sm)] leading-relaxed text-[var(--color-ink-soft)]">
-          <span className="font-display font-bold text-[var(--color-accent)]">
+        <p className="max-w-2xl text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)]">
+          <span className="font-display font-bold text-[var(--c-accent)]">
             تنويه ·{" "}
           </span>
           {t("disclaimer")}
         </p>
-        <div className="mt-6 flex flex-col gap-2 border-t border-[var(--color-rule)] pt-6 text-[var(--text-xs)] text-[var(--color-ink-faint)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 flex flex-col gap-2 border-t border-[var(--c-rule)] pt-6 text-[var(--fz-xs)] text-[var(--c-ink-faint)] sm:flex-row sm:items-center sm:justify-between">
           <span>
             {LAW_META.titleAr} — {LAW_META.decree} وتاريخ {LAW_META.decreeDate}
           </span>
@@ -48,7 +48,7 @@ export default function SiteFooter() {
             href={LAW_META.source}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline decoration-[var(--color-rule)] underline-offset-4 transition-colors hover:text-[var(--color-accent)]"
+            className="underline decoration-[var(--c-rule)] underline-offset-4 transition-colors hover:text-[var(--c-accent)]"
           >
             {t("source_label")} ↗
           </a>
