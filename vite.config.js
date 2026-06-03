@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // المرجع التفاعلي لنظام العمل السعودي — build config (Vite + React + Tailwind v4 + PWA)
 export default defineConfig({
+  // معاينة قابلة للوصول عبر نفق عام مؤقّت (السماح بكل المضيفات)
+  preview: { host: true, allowedHosts: true },
+  server: { host: true, allowedHosts: true },
   plugins: [
     react(),
     tailwindcss(),

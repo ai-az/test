@@ -7,3 +7,5 @@ dist-ssr
 .work/shots
 .work/*.mjs
 .work/gf.css
+.work/video
+.work/*.webm
