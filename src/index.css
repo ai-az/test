@@ -255,6 +255,22 @@ button {
 }
 
 /* ── "آخر التحديثات" live badge ─────────────────────────── */
+.badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12px var(--text);
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  background: var(--accent-tint);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  border-radius: 999px;
+  padding: 5px 12px 5px 11px;
+  transition: all 0.18s ease;
+}
+.badge-live:hover {
+  background: var(--accent-tint-2);
+}
 .live-dot {
   width: 8px;
   height: 8px;

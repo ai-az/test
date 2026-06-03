@@ -1,121 +1,151 @@
-// توليد «بطاقة المادة» كصورة PNG بهوية Specimen — بلا مكتبات خارجية (canvas فقط).
+// توليد «بطاقة المادة» كصورة PNG ١٠٨٠×١٣٥٠ بهوية التصميم (داكنة + رقم أخضر عملاق) —
+// مرسومة على canvas بلا مكتبات خارجية، بتشكيل عربي سليم. منقول من مرجع التصميم.
 import { toArabicDigits } from "./format.js";
 
-const W = 1080;
-const H = 1350;
-const PAD = 96;
+const SERIF = '"Thmanyah Serif"';
+const SANS = '"Thmanyah Sans"';
 
-// ألوان ثابتة للبطاقة (تتبع هوية الموقع، مستقلة عن الوضع الليلي للتصدير).
-const C = {
-  paper: "#faf9f7",
-  paper2: "#f0efe9",
-  ink: "#23211d",
-  inkSoft: "#5d5b54",
-  inkFaint: "#8f8d85",
-  green: "#126837",
-  rule: "#d8d6cd",
-};
+function roundRect(x, rx, ry, w, h, r) {
+  x.beginPath();
+  x.moveTo(rx + r, ry);
+  x.arcTo(rx + w, ry, rx + w, ry + h, r);
+  x.arcTo(rx + w, ry + h, rx, ry + h, r);
+  x.arcTo(rx, ry + h, rx, ry, r);
+  x.arcTo(rx, ry, rx + w, ry, r);
+  x.closePath();
+}
 
-function wrap(ctx, text, maxWidth) {
-  const words = String(text).split(/\s+/);
+function wrapRTL(x, text, maxW) {
+  const words = String(text).split(" ");
   const lines = [];
   let line = "";
   for (const w of words) {
     const test = line ? line + " " + w : w;
-    if (ctx.measureText(test).width > maxWidth && line) {
+    if (x.measureText(test).width > maxW && line) {
       lines.push(line);
       line = w;
-    } else {
-      line = test;
-    }
+    } else line = test;
   }
   if (line) lines.push(line);
   return lines;
 }
 
-export async function downloadArticleCard(article, numLabel) {
+async function renderCardBlob(article, numLabel, lang = "ar") {
+  const S = 3; // 360×450 منطقي → 1080×1350 بكسل
+  const W = 360 * S,
+    H = 450 * S,
+    P = 30 * S;
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const x = c.getContext("2d");
   try {
     await Promise.all([
-      document.fonts.load('900 100px "Noto Kufi Arabic"'),
-      document.fonts.load('700 100px "Noto Kufi Arabic"'),
-      document.fonts.load('500 40px "IBM Plex Sans Arabic"'),
+      document.fonts.load(`800 100px ${SERIF}`),
+      document.fonts.load(`700 30px ${SANS}`),
+      document.fonts.load(`500 30px ${SANS}`),
     ]);
+    await document.fonts.ready;
   } catch {
-    /* المتابعة بخطوط احتياطية */
+    /* خطوط احتياطية */
+  }
+  const num = numLabel ?? toArabicDigits(article.articleNumber);
+
+  // الخلفية
+  x.fillStyle = "#1c1b18";
+  x.fillRect(0, 0, W, H);
+
+  // رقم شبحي
+  x.save();
+  x.fillStyle = "rgba(255,255,255,0.045)";
+  x.textAlign = "left";
+  x.textBaseline = "top";
+  x.font = `800 ${210 * S}px ${SERIF}`;
+  x.fillText(num, -14 * S, -34 * S);
+  x.restore();
+
+  x.direction = "rtl";
+  const right = W - P,
+    left = P;
+
+  // الصفّ العلوي
+  x.textBaseline = "top";
+  x.textAlign = "right";
+  x.fillStyle = "#f7f4ec";
+  x.font = `700 ${13 * S}px ${SANS}`;
+  x.fillText(lang === "ar" ? "نظام العمل" : "Labor Law", right, P + 2 * S);
+  if (article.isAmended) {
+    const label = lang === "ar" ? "مُعدَّلة" : "Amended";
+    x.font = `600 ${11 * S}px ${SANS}`;
+    const tw = x.measureText(label).width,
+      pad = 9 * S,
+      bh = 22 * S;
+    const bx = left,
+      by = P - 2 * S;
+    x.strokeStyle = "rgba(210,164,90,0.5)";
+    x.lineWidth = 1 * S;
+    roundRect(x, bx, by, tw + pad * 2, bh, 11 * S);
+    x.stroke();
+    x.fillStyle = "#d2a45a";
+    x.textAlign = "left";
+    x.textBaseline = "middle";
+    x.fillText(label, bx + pad, by + bh / 2 + 1 * S);
+    x.textAlign = "right";
+    x.textBaseline = "top";
   }
 
-  const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext("2d");
-  ctx.direction = "rtl";
-  ctx.textAlign = "right";
-  const right = W - PAD;
+  // تسمية «المادة»
+  x.fillStyle = "rgba(247,244,236,0.6)";
+  x.font = `600 ${12 * S}px ${SANS}`;
+  x.fillText(lang === "ar" ? "المادة" : "ARTICLE", right, 148 * S);
 
-  // الخلفية + إطار رفيع
-  ctx.fillStyle = C.paper;
-  ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = C.rule;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(40, 40, W - 80, H - 80);
-  // شريط أخضر علوي
-  ctx.fillStyle = C.green;
-  ctx.fillRect(40, 40, W - 80, 12);
-
-  // كيكر
-  ctx.fillStyle = C.inkFaint;
-  ctx.font = '500 30px "IBM Plex Sans Arabic", sans-serif';
-  ctx.fillText("نظام العمل · المرجع التفاعلي", right, 150);
-
-  // «المادة»
-  ctx.fillStyle = C.inkSoft;
-  ctx.font = '700 56px "Noto Kufi Arabic", sans-serif';
-  ctx.fillText("المادة", right, 250);
-
-  // الرقم الضخم
-  ctx.fillStyle = C.green;
-  ctx.font = '900 360px "Noto Kufi Arabic", sans-serif';
-  ctx.fillText(numLabel, right, 580);
-
-  // خط فاصل
-  ctx.strokeStyle = C.rule;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(PAD, 660);
-  ctx.lineTo(right, 660);
-  ctx.stroke();
-
-  // «ببساطة»
-  ctx.fillStyle = C.green;
-  ctx.font = '700 40px "Noto Kufi Arabic", sans-serif';
-  ctx.fillText("ببساطة", right, 740);
+  // الرقم الكبير
+  x.fillStyle = "#5fb893";
+  x.font = `800 ${140 * S}px ${SERIF}`;
+  x.fillText(num, right, 154 * S);
 
   // الشرح المبسّط (ملفوف)
-  ctx.fillStyle = C.ink;
-  ctx.font = '500 46px "IBM Plex Sans Arabic", sans-serif';
-  const text = article.simplifiedAr || article.officialText || "";
-  const lines = wrap(ctx, text, W - PAD * 2).slice(0, 9);
-  let y = 810;
-  for (const ln of lines) {
-    ctx.fillText(ln, right, y);
-    y += 70;
+  const src = article.simplifiedAr || article.officialText || "";
+  const text = src.length > 140 ? src.slice(0, 140) + "…" : src;
+  x.fillStyle = "rgba(247,244,236,0.95)";
+  x.font = `500 ${15 * S}px ${SANS}`;
+  const lines = wrapRTL(x, text, W - P * 2);
+  let ty = 292 * S;
+  const lh = 24 * S;
+  for (const ln of lines.slice(0, 4)) {
+    x.fillText(ln, right, ty);
+    ty += lh;
   }
 
-  // تذييل
-  ctx.fillStyle = C.inkFaint;
-  ctx.font = '500 28px "IBM Plex Sans Arabic", sans-serif';
-  ctx.fillText("شرح تبسيطي غير رسمي — ليس استشارة قانونية", right, H - 130);
-  ctx.fillStyle = C.green;
-  ctx.font = '700 34px "Noto Kufi Arabic", sans-serif';
-  ctx.fillText("نظام العمل السعودي · م/٥١", right, H - 80);
+  // التذييل
+  x.strokeStyle = "rgba(255,255,255,0.15)";
+  x.lineWidth = 1 * S;
+  x.beginPath();
+  x.moveTo(left, H - P - 22 * S);
+  x.lineTo(right, H - P - 22 * S);
+  x.stroke();
+  x.fillStyle = "rgba(247,244,236,0.7)";
+  x.font = `500 ${11 * S}px ${SANS}`;
+  x.textAlign = "right";
+  x.fillText(lang === "ar" ? "المرجع التفاعلي لنظام العمل" : "Interactive Labor Law Reference", right, H - P - 16 * S);
+  x.textAlign = "left";
+  x.fillText(lang === "ar" ? "شرح تبسيطي" : "simplified", left, H - P - 16 * S);
 
-  const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `المادة-${toArabicDigits(article.articleNumber)}${article.mukarrar ? "-مكرر" : ""}.png`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  return await new Promise((res) => c.toBlob(res, "image/png"));
+}
+
+export async function downloadArticleCard(article, numLabel, lang = "ar") {
+  try {
+    const blob = await renderCardBlob(article, numLabel, lang);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `نظام-العمل-المادة-${toArabicDigits(article.articleNumber)}${article.mukarrar ? "-مكرر" : ""}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  } catch {
+    /* ignore */
+  }
 }

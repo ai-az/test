@@ -62,7 +62,8 @@ function GlossaryTerm({ label, entry }) {
         onFocus={() => show(0)}
         onBlur={hide}
         onClick={() => setOpen((v) => !v)}
-        className="cursor-help border-0 bg-transparent p-0 font-[inherit] text-[inherit] text-[var(--c-accent)] underline decoration-dotted decoration-from-font underline-offset-4"
+        className="cursor-help border-0 bg-transparent p-0 font-semibold text-[inherit]"
+        style={{ borderBottom: "1.5px dotted var(--accent)" }}
       >
         {label}
       </button>
@@ -70,11 +71,11 @@ function GlossaryTerm({ label, entry }) {
         <span
           id={tipId}
           role="tooltip"
-          className="reveal absolute bottom-full z-40 mb-2 block w-64 max-w-[80vw] rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-paper)] p-3 text-start text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)] shadow-lg"
-          style={{ insetInlineStart: 0 }}
+          className="reveal absolute bottom-[calc(100%+10px)] z-40 block w-max max-w-[280px] rounded-[11px] bg-[var(--ink)] p-3.5 text-start leading-[1.7] text-[var(--paper)]"
+          style={{ insetInlineStart: 0, fontSize: "13.5px", boxShadow: "0 14px 34px -12px rgba(0,0,0,.45)" }}
         >
           <span className="font-display mb-1 block text-[var(--fz-xs)] font-bold text-[var(--c-accent)]">
-            {entry.term} · تعريف نظامي
+            {entry.term}
           </span>
           {entry.short}
         </span>

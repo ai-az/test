@@ -12,19 +12,33 @@ export default function Home() {
       {/* ── Specimen cover ─────────────────────────────── */}
       <section className="reveal border-b border-[var(--c-rule)] py-14 sm:py-20">
         <p className="eyebrow">{t("cover_kicker")}</p>
+        <hr className="hairline mt-4 max-w-xs" />
 
-        <h1 className="font-display mt-5 font-black leading-[0.92] text-[var(--c-ink)]">
-          <span className="block text-[var(--fz-display-xl)]">نظام</span>
-          <span className="block text-[var(--fz-display-xl)] text-[var(--c-accent)]">
-            العمل
-          </span>
+        <h1
+          className="display kashida mt-6 leading-[0.9] text-[var(--c-ink)]"
+          style={{ fontSize: "calc(var(--fz-display-xl) * var(--num-scale))" }}
+        >
+          <span className="block">نظام</span>
+          <span className="block text-[var(--c-accent)]">العمل</span>
         </h1>
 
         <p className="mt-7 max-w-xl text-[var(--fz-lg)] leading-relaxed text-[var(--c-ink-soft)]">
           {t("cover_lead")}
         </p>
 
-        <div className="mt-10 flex flex-wrap items-stretch gap-px overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-rule)]">
+        {/* صندوق بحث كبير قابل للنقر */}
+        <Link
+          to="/search"
+          className="mt-8 flex max-w-xl items-center gap-3 rounded-[var(--rad-md)] border border-[var(--hair-strong)] bg-[var(--c-paper-3)] px-5 py-4 text-[var(--c-ink-faint)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink-soft)]"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
+            <path d="m20 20-3.2-3.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+          </svg>
+          <span className="text-[var(--fz-base)]">{t("search_placeholder")}</span>
+        </Link>
+
+        <div className="mt-9 flex flex-wrap items-stretch gap-px overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-rule)]">
           <Stat value={displayNumber(LAW_META.chapterCount, lang)} label={t("stat_chapters")} />
           <Stat value={displayNumber(LAW_META.articleCount, lang)} label={t("stat_articles")} />
           <Stat

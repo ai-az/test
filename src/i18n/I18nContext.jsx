@@ -118,6 +118,7 @@ const STRINGS = {
     char_dramatic: "مبالِغة",
     char_reset: "إعادة الضبط الافتراضي",
     close: "إغلاق",
+    last_updates: "آخر التحديثات",
   },
   en: {
     dir: "ltr",
@@ -235,6 +236,7 @@ const STRINGS = {
     char_dramatic: "Dramatic",
     char_reset: "Reset to default",
     close: "Close",
+    last_updates: "Latest updates",
   },
 };
 

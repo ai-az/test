@@ -6,7 +6,7 @@ import { getSlot } from "../data/articleIndex.js";
 import { getChapter } from "../data/chapters.js";
 import { LAW_META } from "../data/chapters.js";
 import { useBookmarks } from "../lib/storage.js";
-import { displayArticleNumber, ordinalAr } from "../lib/format.js";
+import { displayArticleNumber, ordinalAr, toArabicDigits } from "../lib/format.js";
 import { GLOSSARY_ARTICLE } from "../data/glossary.js";
 import GlossaryText from "../components/GlossaryText.jsx";
 import { downloadArticleCard } from "../lib/shareCard.js";
@@ -67,12 +67,20 @@ export default function ArticleView() {
           <span className="specimen-numeral text-[var(--c-accent)]">{numLabel}</span>
           <div className="pb-2">
             <p className="eyebrow">{t("article_word")}</p>
-            {article.isAmended && (
-              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[var(--c-amend-soft)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-amend)]">
-                <span className="size-1.5 rounded-full bg-[var(--c-amend)]" />
-                {t("amended")}
-              </span>
-            )}
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {article.isAmended && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--c-amend-soft)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-amend)]">
+                  <span className="size-1.5 rounded-full bg-[var(--c-amend)]" />
+                  {t("amended")}
+                </span>
+              )}
+              {article.lastUpdated && (
+                <Link to="/timeline" className="badge-live no-print" title={t("timeline_title")}>
+                  <span className="live-dot" />
+                  {t("last_updates")} · {toArabicDigits(article.lastUpdated)}هـ
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
@@ -99,7 +107,7 @@ export default function ArticleView() {
           </button>
           <button
             type="button"
-            onClick={() => downloadArticleCard(article, numLabel)}
+            onClick={() => downloadArticleCard(article, numLabel, lang)}
             className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
           >
             {t("share")}
