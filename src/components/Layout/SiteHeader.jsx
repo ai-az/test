@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useI18n } from "../../i18n/I18nContext.jsx";
+import CharacterPanel from "../CharacterPanel.jsx";
 
 const LINKS = [
   { to: "/start", key: "nav_start" },
@@ -24,6 +25,7 @@ function linkClass({ isActive }) {
 export default function SiteHeader() {
   const { t, toggleLang, toggleTheme, theme } = useI18n();
   const [open, setOpen] = useState(false);
+  const [charOpen, setCharOpen] = useState(false);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -52,6 +54,18 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setCharOpen(true)}
+            className="char-btn"
+            aria-label={t("char_btn")}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+              <circle cx="17" cy="17" r="2.4" fill="currentColor" />
+            </svg>
+            <span>{t("char_btn")}</span>
+          </button>
           <NavLink
             to="/search"
             aria-label={t("nav_search")}
@@ -111,6 +125,8 @@ export default function SiteHeader() {
           ))}
         </nav>
       )}
+
+      {charOpen && <CharacterPanel onClose={() => setCharOpen(false)} />}
     </header>
   );
 }

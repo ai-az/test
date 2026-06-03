@@ -107,6 +107,17 @@ const STRINGS = {
     nav_coverage: "التغطية",
     index_available: "متاحة",
     index_pending: "قيد الإدخال",
+    char_btn: "ضبط الطابع",
+    char_tune: "ضبط الطابع",
+    char_sub: "اضبط شكل الموقع كما يناسبك",
+    char_accent: "اللون المميّز",
+    char_scale: "حجم الأرقام البطلة",
+    char_kashida: "حدّة الكشيدة",
+    char_quiet: "هادئة",
+    char_medium: "متوسطة",
+    char_dramatic: "مبالِغة",
+    char_reset: "إعادة الضبط الافتراضي",
+    close: "إغلاق",
   },
   en: {
     dir: "ltr",
@@ -213,16 +224,48 @@ const STRINGS = {
     nav_coverage: "Coverage",
     index_available: "Available",
     index_pending: "Pending",
+    char_btn: "Tune",
+    char_tune: "Tune the character",
+    char_sub: "Reshape the look to your taste",
+    char_accent: "Accent color",
+    char_scale: "Hero numeral scale",
+    char_kashida: "Kashida intensity",
+    char_quiet: "Quiet",
+    char_medium: "Medium",
+    char_dramatic: "Dramatic",
+    char_reset: "Reset to default",
+    close: "Close",
   },
 };
 
 const I18nContext = createContext(null);
+
+// ── «ضبط الطابع» presets ──────────────────────────────────
+export const ACCENTS = {
+  olive: { name: "زيتي", nameEn: "Olive", swatch: "#1a5c43", light: ["#1a5c43", "#124231"], dark: ["#5fb893", "#8fd3b3"] },
+  brick: { name: "طوبي", nameEn: "Brick", swatch: "#9a3b2e", light: ["#9a3b2e", "#6f2820"], dark: ["#e08a78", "#f0a695"] },
+  navy: { name: "كحلي", nameEn: "Navy", swatch: "#1f3a5f", light: ["#1f3a5f", "#142a47"], dark: ["#6f9bd1", "#9bbce0"] },
+  gold: { name: "ذهبي", nameEn: "Gold", swatch: "#9a7b1e", light: ["#9a7b1e", "#6f5712"], dark: ["#d2a45a", "#e2bd80"] },
+};
+const KASHIDA = {
+  هادئة: { body: '"dlig" 1, "calt" 1, "liga" 1', display: '"dlig" 1, "calt" 1, "rlig" 1', kashida: '"dlig" 1, "calt" 1, "rlig" 1' },
+  متوسطة: { body: '"swsh" 1, "dlig" 1, "calt" 1, "rlig" 1, "liga" 1', display: '"swsh" 1, "dlig" 1, "calt" 1, "rlig" 1', kashida: '"swsh" 1, "dlig" 1, "calt" 1, "rlig" 1' },
+  مبالِغة: { body: '"swsh" 1, "ss05" 1, "dlig" 1, "calt" 1, "rlig" 1, "liga" 1', display: '"swsh" 1, "ss05" 1, "dlig" 1, "calt" 1, "rlig" 1', kashida: '"swsh" 1, "ss05" 1, "dlig" 1, "calt" 1, "rlig" 1' },
+};
+const CHARACTER_DEFAULT = { accent: "olive", numScale: 1, kashida: "متوسطة" };
 
 export function I18nProvider({ children }) {
   const [lang, setLang] = useState(() => localStorage.getItem("marja:lang") || "ar");
   const [theme, setTheme] = useState(
     () => localStorage.getItem("marja:theme") || "light"
   );
+  const [character, setCharacter] = useState(() => {
+    try {
+      return { ...CHARACTER_DEFAULT, ...JSON.parse(localStorage.getItem("marja:character") || "{}") };
+    } catch {
+      return CHARACTER_DEFAULT;
+    }
+  });
 
   useEffect(() => {
     const dir = STRINGS[lang].dir;
@@ -236,6 +279,23 @@ export function I18nProvider({ children }) {
     localStorage.setItem("marja:theme", theme);
   }, [theme]);
 
+  // تطبيق «ضبط الطابع» كمتغيّرات CSS على <html> (يعتمد على الثيم لاختيار درجة اللون)
+  useEffect(() => {
+    const root = document.documentElement.style;
+    const pal = ACCENTS[character.accent] || ACCENTS.olive;
+    const [acc, deep] = theme === "dark" ? pal.dark : pal.light;
+    root.setProperty("--accent", acc);
+    root.setProperty("--accent-deep", deep);
+    root.setProperty("--accent-tint", `color-mix(in srgb, ${acc} 8%, transparent)`);
+    root.setProperty("--accent-tint-2", `color-mix(in srgb, ${acc} 14%, transparent)`);
+    root.setProperty("--num-scale", String(character.numScale));
+    const k = KASHIDA[character.kashida] || KASHIDA["متوسطة"];
+    root.setProperty("--feat-body", k.body);
+    root.setProperty("--feat-display", k.display);
+    root.setProperty("--feat-kashida", k.kashida);
+    localStorage.setItem("marja:character", JSON.stringify(character));
+  }, [character, theme]);
+
   const t = (key) => STRINGS[lang][key] ?? key;
 
   const value = {
@@ -245,6 +305,9 @@ export function I18nProvider({ children }) {
     t,
     toggleLang: () => setLang((l) => (l === "ar" ? "en" : "ar")),
     toggleTheme: () => setTheme((th) => (th === "light" ? "dark" : "light")),
+    character,
+    setTweak: (k, v) => setCharacter((c) => ({ ...c, [k]: v })),
+    resetCharacter: () => setCharacter(CHARACTER_DEFAULT),
   };
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

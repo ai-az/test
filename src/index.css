@@ -133,6 +133,127 @@ button {
   min-width: 0;
 }
 
+/* ── Icon button ────────────────────────────────────────── */
+.act {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--ink);
+  transition: all 0.18s ease;
+}
+.act:hover {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+/* ── «ضبط الطابع» button + panel ────────────────────────── */
+.char-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid var(--hair-strong);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--ink);
+  font: 600 13.5px var(--text);
+  transition: all 0.18s ease;
+}
+.char-btn:hover {
+  background: var(--accent-tint);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+@media (max-width: 560px) {
+  .char-btn span {
+    display: none;
+  }
+  .char-btn {
+    padding: 8px;
+    border-radius: 10px;
+  }
+}
+.char-panel {
+  position: fixed;
+  top: 74px;
+  inset-inline-start: var(--gutter);
+  width: min(340px, calc(100vw - 28px));
+  background: var(--card);
+  border: 1px solid var(--hair-strong);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px -24px rgba(28, 27, 24, 0.5);
+  padding: 22px 24px;
+  z-index: 151;
+  animation: charIn 0.25s var(--ease-out) both;
+}
+:root[data-theme="dark"] .char-panel {
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+}
+@keyframes charIn {
+  from {
+    transform: translateY(-8px);
+  }
+  to {
+    transform: none;
+  }
+}
+.char-sec {
+  font: 600 11px var(--text);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+}
+.char-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  border: 2px solid transparent;
+  outline: 1px solid var(--hair);
+  transition: all 0.18s ease;
+}
+.char-swatch:hover {
+  transform: translateY(-2px);
+}
+.char-swatch.is-on {
+  border-color: var(--card);
+  box-shadow: 0 0 0 2px var(--sw);
+  outline: none;
+}
+.char-range {
+  flex: 1;
+  accent-color: var(--accent);
+  height: 4px;
+  cursor: pointer;
+}
+.char-seg {
+  display: flex;
+  gap: 6px;
+}
+.char-seg button {
+  flex: 1;
+  border: 1px solid var(--hair-strong);
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 4px;
+  font: 600 13px var(--text);
+  color: var(--ink-soft);
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.char-seg button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
 /* ── "آخر التحديثات" live badge ─────────────────────────── */
 .live-dot {
   width: 8px;
