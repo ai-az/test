@@ -2,6 +2,8 @@ import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import { getArticle, getAdjacentArticle, articles } from "../data/articles.js";
+import { getSlot } from "../data/articleIndex.js";
+import { getChapter } from "../data/chapters.js";
 import { LAW_META } from "../data/chapters.js";
 import { useBookmarks } from "../lib/storage.js";
 import { displayArticleNumber, ordinalAr } from "../lib/format.js";
@@ -18,7 +20,7 @@ export default function ArticleView() {
   const [showOriginal, setShowOriginal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  if (!article) return <NotFound />;
+  if (!article) return <PendingArticle id={num} />;
 
   const id = article.id;
   const numLabel = displayArticleNumber(article, lang);
@@ -74,7 +76,7 @@ export default function ArticleView() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="no-print flex items-center gap-2">
           <button
             type="button"
             onClick={() => toggle(id)}
@@ -218,12 +220,107 @@ export default function ArticleView() {
         </section>
       )}
 
+      {/* أدوات الباحث: رابط مباشر · اقتباس نظامي · طباعة/PDF */}
+      <section className="no-print mt-9">
+        <SectionLabel>{t("tools")}</SectionLabel>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <CopyButton label={t("copy_link")} getText={() => window.location.href} />
+          <CopyButton
+            label={t("copy_citation")}
+            getText={() =>
+              `${t("article_word")} (${numLabel}) من ${LAW_META.titleAr} الصادر بـ${LAW_META.decree} وتاريخ ${LAW_META.decreeDate}. ${window.location.href}`
+            }
+          />
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+          >
+            {t("print_pdf")}
+          </button>
+        </div>
+      </section>
+
       {/* Prev / next */}
-      <nav className="mt-12 flex items-stretch justify-between gap-3 border-t border-[var(--color-rule)] pt-6">
+      <nav className="no-print mt-12 flex items-stretch justify-between gap-3 border-t border-[var(--color-rule)] pt-6">
         <AdjacentLink to={prev} dir="prev" label={t("prev")} />
         <AdjacentLink to={next} dir="next" label={t("next")} />
       </nav>
     </article>
+  );
+}
+
+function CopyButton({ label, getText }) {
+  const { t } = useI18n();
+  const [done, setDone] = useState(false);
+  const onClick = async () => {
+    try {
+      await navigator.clipboard.writeText(getText());
+      setDone(true);
+      setTimeout(() => setDone(false), 1800);
+    } catch {
+      /* ignore */
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-rule)] px-3.5 py-2 text-[var(--text-xs)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+    >
+      {done ? t("copied") : label}
+    </button>
+  );
+}
+
+// مادة موجودة في بنية النظام لكن نصّها قيد الإدخال.
+function PendingArticle({ id }) {
+  const { t, lang } = useI18n();
+  const slot = getSlot(id);
+  if (!slot) return <NotFound />;
+  const chapter = getChapter(slot.chapter);
+  const label = displayArticleNumber({ articleNumber: slot.n, mukarrar: slot.mukarrar }, lang);
+
+  return (
+    <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+      <nav className="flex flex-wrap items-center gap-2 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+        <Link to="/chapters" className="hover:text-[var(--color-accent)]">
+          {t("nav_chapters")}
+        </Link>
+        {chapter && (
+          <>
+            <span aria-hidden="true">/</span>
+            <Link to={`/chapter/${chapter.number}`} className="hover:text-[var(--color-accent)]">
+              {t("chapter_word")} {ordinalAr(chapter.number)} · {chapter.title}
+            </Link>
+          </>
+        )}
+      </nav>
+
+      <div className="reveal mt-10 flex flex-col items-center rounded-[var(--radius-md)] border border-dashed border-[var(--color-rule)] bg-[var(--color-paper-2)] px-6 py-16 text-center">
+        <span className="specimen-numeral text-[var(--color-ink-faint)]">{label}</span>
+        <p className="eyebrow mt-2">{t("article_word")} {label}</p>
+        <p className="mt-4 max-w-md text-[var(--text-base)] text-[var(--color-ink-soft)]">
+          {t("article_pending_full")}
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {chapter && (
+            <Link
+              to={`/chapter/${chapter.number}`}
+              className="rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-[var(--text-sm)] text-[var(--color-paper)] transition-transform hover:-translate-y-0.5"
+            >
+              {chapter.title}
+            </Link>
+          )}
+          <Link
+            to="/coverage"
+            className="rounded-full border border-[var(--color-rule)] px-5 py-2.5 text-[var(--text-sm)] text-[var(--color-ink-soft)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)]"
+          >
+            {t("coverage_title")}
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
 

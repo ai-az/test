@@ -93,6 +93,20 @@ const STRINGS = {
     timeline_note:
       "ربط المراسيم بالمواد يعتمد على ما توفّر من الحواشي الرسمية؛ تُراجع التفاصيل من المصدر الرسمي.",
     share: "بطاقة مشاركة",
+    tools: "أدوات",
+    copy_link: "نسخ الرابط",
+    copy_citation: "نسخ اقتباس نظامي",
+    print_pdf: "طباعة / PDF",
+    article_pending_full:
+      "هذه المادة موجودة في بنية النظام، ونصّها الرسمي قيد الإدخال. تصفّح الباب أو راجع لوحة التغطية.",
+    coverage_title: "لوحة التغطية",
+    coverage_lead:
+      "نسبة المواد المُدخَلة بنصّها الرسمي من إجمالي مواد النظام، موزّعة على الأبواب — لاكتشاف الناقص.",
+    coverage_of: "من",
+    coverage_pending: "مواد قيد الإدخال",
+    nav_coverage: "التغطية",
+    index_available: "متاحة",
+    index_pending: "قيد الإدخال",
   },
   en: {
     dir: "ltr",
@@ -185,6 +199,20 @@ const STRINGS = {
     timeline_note:
       "Linking decrees to articles relies on available official footnotes; full details should be checked against the official source.",
     share: "Share card",
+    tools: "Tools",
+    copy_link: "Copy link",
+    copy_citation: "Copy citation",
+    print_pdf: "Print / PDF",
+    article_pending_full:
+      "This article exists in the law's structure; its official text is being added. Browse the chapter or check the coverage panel.",
+    coverage_title: "Coverage panel",
+    coverage_lead:
+      "Share of articles entered with official text out of the law's total, by chapter — to spot what's missing.",
+    coverage_of: "of",
+    coverage_pending: "articles pending",
+    nav_coverage: "Coverage",
+    index_available: "Available",
+    index_pending: "Pending",
   },
 };
 

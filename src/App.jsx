@@ -13,6 +13,7 @@ import ScenarioDetail from "./pages/ScenarioDetail.jsx";
 import Calculators from "./pages/Calculators.jsx";
 import CalculatorView from "./pages/CalculatorView.jsx";
 import Timeline from "./pages/Timeline.jsx";
+import Coverage from "./pages/Coverage.jsx";
 import Bookmarks from "./pages/Bookmarks.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/calculators" element={<Calculators />} />
         <Route path="/calculators/:id" element={<CalculatorView />} />
         <Route path="/timeline" element={<Timeline />} />
+        <Route path="/coverage" element={<Coverage />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

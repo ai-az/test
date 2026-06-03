@@ -107,6 +107,30 @@ button {
   }
 }
 
+/* ── Print / PDF export ─────────────────────────────────── */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff;
+    color: #000;
+  }
+  main {
+    padding: 0 !important;
+  }
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+  .reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

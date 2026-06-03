@@ -31,7 +31,7 @@ export default function SiteHeader() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--color-rule)] bg-[var(--color-paper)]/90 backdrop-blur-md">
+    <header className="no-print sticky top-0 z-30 border-b border-[var(--color-rule)] bg-[var(--color-paper)]/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
         <Link to="/" className="flex items-baseline gap-2">
           <span className="font-display text-[var(--text-lg)] font-bold leading-none text-[var(--color-ink)]">

@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import { chapters } from "../data/chapters.js";
-import { articlesInChapter } from "../data/articles.js";
-import { displayNumber, displayArticleNumber, ordinalAr } from "../lib/format.js";
+import { getArticle } from "../data/articles.js";
+import { chapterSlots } from "../data/articleIndex.js";
+import { displayNumber } from "../lib/format.js";
 
 export default function IndexMap() {
   const { t, lang } = useI18n();
-  const [filter, setFilter] = useState(0); // 0 = الكل
+  const [filter, setFilter] = useState(0);
   const shown = filter ? chapters.filter((c) => c.number === filter) : chapters;
 
   return (
@@ -20,9 +21,18 @@ export default function IndexMap() {
         <p className="mt-4 max-w-xl text-[var(--text-base)] text-[var(--color-ink-soft)]">
           {t("index_lead")}
         </p>
+        <div className="mt-4 flex flex-wrap gap-4 text-[var(--text-xs)] text-[var(--color-ink-faint)]">
+          <span className="flex items-center gap-1.5">
+            <span className="size-3 rounded border border-[var(--color-accent)] bg-[var(--color-accent-soft)]" />
+            {t("index_available")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="size-3 rounded border border-dashed border-[var(--color-rule)]" />
+            {t("index_pending")}
+          </span>
+        </div>
       </header>
 
-      {/* مرشّح الأبواب */}
       <div className="mb-8 flex flex-wrap gap-2">
         <Chip active={filter === 0} onClick={() => setFilter(0)}>
           {t("filter_all")}
@@ -34,66 +44,46 @@ export default function IndexMap() {
         ))}
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-8">
         {shown.map((c) => {
-          const arts = articlesInChapter(c.number);
-          const sections = c.sections.length ? c.sections : [{ number: 0, title: null }];
+          const slots = chapterSlots(c.number);
           return (
             <section key={c.number}>
               <h2 className="flex items-baseline gap-3 border-b border-[var(--color-rule)] pb-2">
                 <span className="font-display text-[var(--text-2xl)] font-black text-[var(--color-accent)]">
                   {displayNumber(c.number, lang)}
                 </span>
-                <span className="min-w-0">
-                  <Link
-                    to={`/chapter/${c.number}`}
-                    className="text-[var(--text-lg)] text-[var(--color-ink)] hover:text-[var(--color-accent)]"
-                  >
-                    {c.title}
-                  </Link>
-                </span>
+                <Link
+                  to={`/chapter/${c.number}`}
+                  className="text-[var(--text-lg)] text-[var(--color-ink)] hover:text-[var(--color-accent)]"
+                >
+                  {c.title}
+                </Link>
               </h2>
-
-              {arts.length === 0 ? (
-                <p className="mt-3 text-[var(--text-sm)] text-[var(--color-ink-faint)]">
-                  {t("article_pending_note")}
-                </p>
-              ) : (
-                sections.map((s) => {
-                  const inSec = arts.filter(
-                    (a) => s.number === 0 || a.section?.number === s.number
-                  );
-                  if (inSec.length === 0) return null;
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {slots.map((s) => {
+                  const id = s.mukarrar ? `${s.n}م` : String(s.n);
+                  const entered = getArticle(id);
                   return (
-                    <div key={s.number} className="mt-4">
-                      {s.title && (
-                        <p className="eyebrow mb-2">
-                          {t("section_word")} {ordinalAr(s.number)} · {s.title}
-                        </p>
+                    <Link
+                      key={id}
+                      to={`/article/${id}`}
+                      title={entered ? entered.officialText.slice(0, 80) : t("article_pending_label")}
+                      className={`font-display inline-flex items-center gap-1 rounded-[var(--radius-sm)] border px-2.5 py-1 text-[var(--text-sm)] transition-colors ${
+                        entered
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-paper)]"
+                          : "border-dashed border-[var(--color-rule)] text-[var(--color-ink-faint)] hover:border-[var(--color-accent)]"
+                      }`}
+                    >
+                      {displayNumber(s.n, lang)}
+                      {s.mukarrar ? " م" : ""}
+                      {entered?.isAmended && (
+                        <span className="size-1.5 rounded-full bg-[var(--color-amend)]" />
                       )}
-                      <div className="flex flex-wrap gap-2">
-                        {inSec.map((a) => (
-                          <Link
-                            key={a.id}
-                            to={`/article/${a.id}`}
-                            className={`font-display inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border px-3 py-1.5 text-[var(--text-sm)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-ink)] ${
-                              a.isAmended
-                                ? "border-[var(--color-amend-soft)] text-[var(--color-ink-soft)]"
-                                : "border-[var(--color-rule)] text-[var(--color-ink-soft)]"
-                            }`}
-                            title={a.officialText.slice(0, 80)}
-                          >
-                            {displayArticleNumber(a, lang)}
-                            {a.isAmended && (
-                              <span className="size-1.5 rounded-full bg-[var(--color-amend)]" />
-                            )}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
+                    </Link>
                   );
-                })
-              )}
+                })}
+              </div>
             </section>
           );
         })}
