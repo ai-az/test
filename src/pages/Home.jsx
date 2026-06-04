@@ -1,147 +1,117 @@
-import { Link } from "react-router-dom";
+// الغلاف — منقول عقدة-بعقدة من screens1.jsx (Cover) المرجعي.
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { LAW_META, chapters } from "../data/chapters.js";
-import { getEnteredCount } from "../data/articles.js";
-import { displayNumber, ordinalAr } from "../lib/format.js";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, Kicker, Badge, Btn } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr, findArticle } from "../data/labor.js";
 
 export default function Home() {
-  const { t, lang } = useI18n();
-
+  const { lang } = useI18n();
+  const go = useGo();
+  const meta = LABOR.meta;
+  const featured = findArticle(84);
   return (
-    <div className="mx-auto max-w-6xl px-5 sm:px-8">
-      {/* ── Specimen cover ─────────────────────────────── */}
-      <section className="reveal border-b border-[var(--c-rule)] py-14 sm:py-20">
-        <p className="eyebrow">{t("cover_kicker")}</p>
-        <hr className="hairline mt-4 max-w-xs" />
+    <div>
+      {/* masthead */}
+      <section className="wrap" style={{ paddingTop: "clamp(40px,7vw,90px)", paddingBottom: "clamp(40px,6vw,70px)" }}>
+        <div className="reveal" style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 30 }}>
+          <Kicker>{lang === "ar" ? "المرجع التفاعلي" : "Interactive reference"}</Kicker>
+          <div style={{ flex: 1, height: 1, background: "var(--hair)" }} />
+          <span style={{ font: "500 12px var(--text)", color: "var(--ink-faint)", letterSpacing: ".1em" }}>{meta.decree}</span>
+        </div>
 
-        <h1
-          className="display kashida mt-6 leading-[0.9] text-[var(--c-ink)]"
-          style={{ fontSize: "calc(var(--fz-display-xl) * var(--num-scale))" }}
-        >
-          <span className="block">نظام</span>
-          <span className="block text-[var(--c-accent)]">العمل</span>
+        <h1 className="display kashida reveal" style={{ fontSize: "var(--t-4xl)", fontWeight: 900, margin: "0 0 8px", letterSpacing: "-.02em" }}>
+          {lang === "ar" ? "نظامُ العمل" : "Saudi Labor Law"}
         </h1>
-
-        <p className="mt-7 max-w-xl text-[var(--fz-lg)] leading-relaxed text-[var(--c-ink-soft)]">
-          {t("cover_lead")}
+        <p className="reveal" style={{ fontSize: "clamp(18px,2.4vw,26px)", color: "var(--ink-soft)", maxWidth: 760, margin: "0 0 44px", lineHeight: 1.7, animationDelay: ".05s", fontWeight: "300" }}>
+          {lang === "ar"
+            ? "كل مادة، مشروحـــــةٌ ببساطـــة ومُسندةٌ بمثالٍ عملي. مرجــــعٌ يفهمــه غير المتخصّص."
+            : "Every article, explained simply and grounded in a real example — a reference anyone can understand."}
         </p>
 
-        {/* صندوق بحث كبير قابل للنقر */}
-        <Link
-          to="/search"
-          className="mt-8 flex max-w-xl items-center gap-3 rounded-[var(--rad-md)] border border-[var(--hair-strong)] bg-[var(--c-paper-3)] px-5 py-4 text-[var(--c-ink-faint)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink-soft)]"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
-            <path d="m20 20-3.2-3.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-          </svg>
-          <span className="text-[var(--fz-base)]">{t("search_placeholder")}</span>
-        </Link>
-
-        <div className="mt-9 flex flex-wrap items-stretch gap-px overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-rule)]">
-          <Stat value={displayNumber(LAW_META.chapterCount, lang)} label={t("stat_chapters")} />
-          <Stat value={displayNumber(LAW_META.articleCount, lang)} label={t("stat_articles")} />
-          <Stat
-            value={displayNumber(getEnteredCount(), lang)}
-            label={t("articles_entered")}
-            accent
-          />
-        </div>
-
-        <div className="mt-9">
-          <Link
-            to="/chapters"
-            className="group inline-flex items-center gap-2 rounded-full bg-[var(--c-ink)] px-6 py-3 text-[var(--fz-sm)] text-[var(--c-paper)] transition-transform duration-150 hover:-translate-y-0.5"
-          >
-            {t("cover_enter")}
-            <span className="transition-transform duration-150 group-hover:-translate-x-1 rtl:rotate-180">
-              →
-            </span>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── Quick entries ─────────────────────────────── */}
-      <section className="grid grid-cols-1 gap-px overflow-hidden border-b border-[var(--c-rule)] bg-[var(--c-rule)] sm:grid-cols-2">
-        <Link
-          to="/start"
-          className="group flex items-center justify-between gap-4 bg-[var(--c-paper)] p-6 transition-colors hover:bg-[var(--c-paper-2)]"
-        >
-          <span>
-            <span className="font-display block text-[var(--fz-lg)] font-bold text-[var(--c-ink)] group-hover:text-[var(--c-accent)]">
-              {t("scenarios_title")}
-            </span>
-            <span className="text-[var(--fz-sm)] text-[var(--c-ink-faint)]">
-              «تم فصلي» · «استقالة» · «إجازات» · «ساعات إضافية»
-            </span>
+        {/* search */}
+        <button onClick={() => go({ name: "search" })} className="reveal" style={{
+          display: "flex", alignItems: "center", gap: 14, width: "100%", maxWidth: 640,
+          background: "var(--card)", border: "1px solid var(--hair-strong)", borderRadius: 14,
+          padding: "17px 22px", boxShadow: "var(--shadow)", animationDelay: ".1s", cursor: "pointer",
+        }}>
+          <Icon name="search" size={22} style={{ color: "var(--ink-faint)" }} />
+          <span style={{ font: "500 16.5px var(--text)", color: "var(--ink-faint)" }}>
+            {lang === "ar" ? "ابحث برقم المادة، أو بكلمة مثل «مكافأة»، «إجازة»…" : "Search by article number or keyword…"}
           </span>
-          <span className="text-[var(--fz-xl)] text-[var(--c-accent)] rtl:rotate-180">→</span>
-        </Link>
-        <Link
-          to="/calculators"
-          className="group flex items-center justify-between gap-4 bg-[var(--c-paper)] p-6 transition-colors hover:bg-[var(--c-paper-2)]"
-        >
-          <span>
-            <span className="font-display block text-[var(--fz-lg)] font-bold text-[var(--c-ink)] group-hover:text-[var(--c-accent)]">
-              {t("calculators_title")}
-            </span>
-            <span className="text-[var(--fz-sm)] text-[var(--c-ink-faint)]">
-              مكافأة نهاية الخدمة · الأجر الإضافي · رصيد الإجازة
-            </span>
-          </span>
-          <span className="text-[var(--fz-xl)] text-[var(--c-accent)] rtl:rotate-180">→</span>
-        </Link>
-      </section>
+        </button>
 
-      {/* ── Chapter index, specimen-style ──────────────── */}
-      <section className="py-12 sm:py-16">
-        <div className="mb-8 flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-[var(--fz-2xl)] font-bold">
-            {t("chapters_title")}
-          </h2>
-          <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-            {t("phase_note")}
-          </span>
-        </div>
-
-        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-rule)] sm:grid-cols-2">
-          {chapters.map((c) => (
-            <li key={c.number}>
-              <Link
-                to={`/chapter/${c.number}`}
-                className="group flex h-full items-start gap-4 bg-[var(--c-paper)] p-5 transition-colors duration-150 hover:bg-[var(--c-paper-2)]"
-              >
-                <span className="font-display min-w-10 text-[var(--fz-2xl)] font-black leading-none text-[var(--c-ink-faint)] transition-colors group-hover:text-[var(--c-accent)]">
-                  {displayNumber(c.number, lang)}
-                </span>
-                <span className="min-w-0">
-                  <span className="eyebrow block">
-                    {t("chapter_word")} {ordinalAr(c.number) || c.number}
-                  </span>
-                  <span className="mt-1 block text-[var(--fz-base)] leading-snug text-[var(--c-ink)]">
-                    {c.title}
-                  </span>
-                </span>
-              </Link>
-            </li>
+        {/* scenario chips */}
+        <div className="reveal" style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 22, animationDelay: ".15s" }}>
+          <span style={{ font: "600 13px var(--text)", color: "var(--ink-faint)", alignSelf: "center" }}>{lang === "ar" ? "أو ابدأ من موقفك:" : "Or start from your situation:"}</span>
+          {LABOR.scenarios.slice(0, 4).map((s) => (
+            <button key={s.id} onClick={() => go({ name: "scenario", id: s.id })} style={{
+              display: "inline-flex", alignItems: "center", gap: 8, background: "transparent",
+              border: "1px solid var(--hair-strong)", borderRadius: 999, padding: "8px 15px",
+              font: "600 13.5px var(--text)", color: "var(--ink)", cursor: "pointer",
+            }}><Icon name={s.icon} size={16} style={{ color: "var(--accent)" }} />{s.title}</button>
           ))}
-        </ul>
+        </div>
       </section>
-    </div>
-  );
-}
 
-function Stat({ value, label, accent }) {
-  return (
-    <div className="flex min-w-[7rem] flex-1 flex-col gap-1 bg-[var(--c-paper)] px-5 py-4">
-      <span
-        className={`font-display text-[var(--fz-4xl)] font-black leading-none ${
-          accent ? "text-[var(--c-accent)]" : "text-[var(--c-ink)]"
-        }`}
-      >
-        {value}
-      </span>
-      <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">{label}</span>
+      {/* stat band */}
+      <section style={{ borderBlock: "1px solid var(--hair)", background: "var(--paper-2)" }}>
+        <div className="wrap" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))" }}>
+          {[
+            [meta.chapters, lang === "ar" ? "باباً" : "Chapters"],
+            [meta.articles, lang === "ar" ? "مادة" : "Articles"],
+            [5, lang === "ar" ? "تعديلات" : "Amendments"],
+            [3, lang === "ar" ? "حاسبات" : "Calculators"],
+          ].map(([num, label], i) => (
+            <div key={i} style={{ padding: "38px 10px", textAlign: "center", borderInlineStart: i === 0 ? "none" : "1px solid var(--hair)" }}>
+              <div className="num" style={{ fontSize: "clamp(54px,8vw,84px)", fontWeight: 800, color: "var(--ink)" }}>{toAr(num)}</div>
+              <div style={{ font: "600 13px var(--text)", letterSpacing: ".14em", color: "var(--ink-faint)", marginTop: 4 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* chapters preview */}
+      <section className="wrap" style={{ paddingTop: 70 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
+          <h2 className="display" style={{ fontSize: "var(--t-xl)", fontWeight: 800, margin: 0 }}>{lang === "ar" ? "الأبواب الستة عشر" : "The Sixteen Chapters"}</h2>
+          <Btn variant="plain" icon={lang === "ar" ? "left" : "right"} onClick={() => go({ name: "browse" })} style={{ color: "var(--accent)" }}>{lang === "ar" ? "تصفّح الكل" : "Browse all"}</Btn>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 0, borderTop: "1px solid var(--hair)", borderInlineStart: "1px solid var(--hair)" }}>
+          {LABOR.chapters.map((c) => (
+            <button key={c.n} onClick={() => go({ name: "chapter", n: c.n })} className="chap-cell" style={{
+              textAlign: "start", background: "transparent", border: "none",
+              borderBottom: "1px solid var(--hair)", borderInlineEnd: "1px solid var(--hair)",
+              padding: "22px 20px", display: "flex", flexDirection: "column", gap: 8, minHeight: 140, cursor: "pointer",
+            }}>
+              <div className="num" style={{ fontSize: 40, fontWeight: 800, color: "var(--accent)", lineHeight: 1 }}>{toAr(c.n).padStart(2, "٠")}</div>
+              <div className="display" style={{ fontSize: 16.5, fontWeight: 700, lineHeight: 1.4, marginTop: "auto" }}>{lang === "ar" ? c.title : c.en}</div>
+              <div style={{ font: "500 12px var(--text)", color: "var(--ink-faint)" }}>{lang === "ar" ? `${toAr(c.count)} مادة · ${toAr(c.from)}–${toAr(c.to)}` : `${c.count} articles`}</div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* featured article specimen */}
+      {featured && (
+        <section className="wrap" style={{ paddingTop: 80 }}>
+          <Kicker style={{ marginBottom: 20 }}>{lang === "ar" ? "نموذج صفحة المادة" : "Sample article"}</Kicker>
+          <button onClick={() => go({ name: "article", num: 84 })} style={{
+            width: "100%", textAlign: "start", background: "var(--card)", border: "1px solid var(--hair-strong)",
+            borderRadius: 18, padding: "clamp(26px,4vw,48px)", display: "grid",
+            gridTemplateColumns: "minmax(0,1fr) auto", gap: 30, alignItems: "center", boxShadow: "var(--shadow)", cursor: "pointer",
+          }}>
+            <div>
+              <Badge tone="accent" style={{ marginBottom: 16 }}><Icon name="spark" size={14} />{lang === "ar" ? "حاسبة مرتبطة" : "Has calculator"}</Badge>
+              <div className="display" style={{ fontSize: "clamp(22px,3vw,30px)", fontWeight: 800, marginBottom: 12, lineHeight: 1.4 }}>{lang === "ar" ? "مكافأة نهاية الخدمة" : "End-of-service award"}</div>
+              <p style={{ color: "var(--ink-soft)", margin: 0, maxWidth: 540, lineHeight: 1.85 }}>{featured.simplifiedAr}</p>
+            </div>
+            <div style={{ textAlign: "center", paddingInline: "clamp(0px,3vw,30px)" }}>
+              <div style={{ font: "600 12px var(--text)", letterSpacing: ".18em", color: "var(--ink-faint)" }}>{lang === "ar" ? "المادة" : "ARTICLE"}</div>
+              <div className="num" style={{ fontSize: "clamp(90px,16vw,150px)", fontWeight: 800, color: "var(--accent)" }}>{toAr(84)}</div>
+            </div>
+          </button>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,12 +1,16 @@
-import SiteHeader from "./SiteHeader.jsx";
-import SiteFooter from "./SiteFooter.jsx";
+import { useLocation } from "react-router-dom";
+import TopBar from "../handoff/TopBar.jsx";
+import Footer from "../handoff/Footer.jsx";
 
 export default function Layout({ children }) {
+  const { pathname } = useLocation();
   return (
-    <div className="flex min-h-dvh flex-col">
-      <SiteHeader />
-      <main className="flex-1">{children}</main>
-      <SiteFooter />
+    <div>
+      <TopBar />
+      <main key={pathname} className="reveal" style={{ minHeight: "70vh" }}>
+        {children}
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -1,395 +1,214 @@
-import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+// صفحة المادة — منقولة عقدة-بعقدة من screens1.jsx (ArticleView + GlossText + PrevNext).
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { getArticle, getAdjacentArticle, articles } from "../data/articles.js";
-import { getSlot } from "../data/articleIndex.js";
-import { getChapter } from "../data/chapters.js";
-import { LAW_META } from "../data/chapters.js";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, Kicker, Badge, Btn } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr, findArticle, isRecentlyAmended } from "../data/labor.js";
 import { useBookmarks } from "../lib/storage.js";
-import { displayArticleNumber, ordinalAr, toArabicDigits } from "../lib/format.js";
-import { GLOSSARY_ARTICLE } from "../data/glossary.js";
-import GlossaryText from "../components/GlossaryText.jsx";
-import { downloadArticleCard } from "../lib/shareCard.js";
-import NotFound from "./NotFound.jsx";
+
+function GlossText({ text, lang }) {
+  if (lang !== "ar" || !text) return <>{text}</>;
+  const sorted = [...LABOR.glossary].sort((a, b) => b.term.length - a.term.length);
+  const parts = [];
+  let rest = text, key = 0, guard = 0;
+  while (rest.length && guard++ < 400) {
+    let best = -1, bestT = null;
+    for (const t of sorted) {
+      const i = rest.indexOf(t.term);
+      if (i !== -1 && (best === -1 || i < best)) { best = i; bestT = t; }
+    }
+    if (best === -1) { parts.push(rest); break; }
+    if (best > 0) parts.push(rest.slice(0, best));
+    parts.push(
+      <span key={"g" + key++} className="gloss" tabIndex={0}>
+        {bestT.term}
+        <span className="gloss-pop">{bestT.def}</span>
+      </span>
+    );
+    rest = rest.slice(best + bestT.term.length);
+  }
+  return <>{parts}</>;
+}
+
+function PrevNext({ dir, num, go, lang }) {
+  const isPrev = dir === "prev";
+  const arrow = lang === "ar" ? (isPrev ? "right" : "left") : (isPrev ? "left" : "right");
+  return (
+    <button onClick={() => go({ name: "article", num })} style={{ display: "flex", alignItems: "center", gap: 12, background: "transparent", border: "1px solid var(--hair)", borderRadius: 12, padding: "14px 18px", textAlign: isPrev ? "start" : "end", flex: "0 1 auto", cursor: "pointer" }}>
+      {isPrev && <Icon name={arrow} size={22} style={{ color: "var(--accent)" }} />}
+      <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <span style={{ font: "600 11.5px var(--text)", letterSpacing: ".1em", color: "var(--ink-faint)" }}>{isPrev ? (lang === "ar" ? "السابقة" : "PREV") : (lang === "ar" ? "التالية" : "NEXT")}</span>
+        <span className="display" style={{ fontSize: 19, fontWeight: 800 }}>{lang === "ar" ? "المادة " : "Art. "}{toAr(num)}</span>
+      </span>
+      {!isPrev && <Icon name={arrow} size={22} style={{ color: "var(--accent)" }} />}
+    </button>
+  );
+}
 
 export default function ArticleView() {
   const { num } = useParams();
-  const { t, lang } = useI18n();
-  const article = getArticle(num);
+  const { lang } = useI18n();
+  const go = useGo();
   const { has, toggle } = useBookmarks();
   const [showOriginal, setShowOriginal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const a = findArticle(num);
+  useEffect(() => { window.scrollTo({ top: 0 }); setShowOriginal(false); }, [num]);
 
-  if (!article) return <PendingArticle id={num} />;
+  const entered = LABOR.articles.filter((x) => !x.status).slice().sort((p, q) => p.order - q.order);
+  const ids = entered.map((x) => String(x.articleNumber));
+  const idx = ids.indexOf(String(num));
+  const prev = idx > 0 ? ids[idx - 1] : null;
+  const next = idx >= 0 && idx < ids.length - 1 ? ids[idx + 1] : null;
 
-  const id = article.id;
-  const numLabel = displayArticleNumber(article, lang);
-  const prev = getAdjacentArticle(id, "prev");
-  const next = getAdjacentArticle(id, "next");
-  const bookmarked = has(id);
+  if (!a || a.status === "pending") {
+    return (
+      <div className="wrap" style={{ paddingTop: 90, minHeight: "60vh" }}>
+        <div className="num display" style={{ fontSize: "var(--t-mega)", color: "var(--hair-strong)", fontWeight: 800 }}>{toAr(num)}</div>
+        <h1 className="display" style={{ fontSize: "var(--t-xl)", marginTop: 10 }}>{lang === "ar" ? "هذه المادة قيد الإدخال" : "Article pending"}</h1>
+        <p style={{ color: "var(--ink-soft)", maxWidth: 480 }}>{lang === "ar" ? "لم يُدخَل بعد النص الرسمي لهذه المادة. سيظهر هنا فور إضافته من المصدر الرسمي." : "The official text for this article has not been entered yet."}</p>
+        <Btn variant="ghost" icon={lang === "ar" ? "right" : "left"} onClick={() => go({ name: "browse" })} style={{ marginTop: 18 }}>{lang === "ar" ? "العودة للأبواب" : "Back to chapters"}</Btn>
+      </div>
+    );
+  }
 
-  const copy = async () => {
-    const ref = `${t("article_word")} ${numLabel} — ${LAW_META.titleAr} (${LAW_META.decree})`;
-    try {
-      await navigator.clipboard.writeText(`${article.officialText}\n\n${ref}`);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      /* ignore */
-    }
+  const saved = has(a.id);
+  const copyLink = () => {
+    try { navigator.clipboard.writeText(`${location.origin}/article/${a.id}`); } catch {}
+    setCopied(true); setTimeout(() => setCopied(false), 1600);
   };
 
   return (
-    <article className="mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-14">
-      {/* Breadcrumb: الباب ← الفصل ← المادة */}
-      <nav className="flex flex-wrap items-center gap-2 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-        <Link to="/chapters" className="hover:text-[var(--c-accent)]">
-          {t("nav_chapters")}
-        </Link>
-        <span aria-hidden="true">/</span>
-        <Link
-          to={`/chapter/${article.chapter.number}`}
-          className="hover:text-[var(--c-accent)]"
-        >
-          {t("chapter_word")} {ordinalAr(article.chapter.number)} · {article.chapter.title}
-        </Link>
-        {article.section && (
-          <>
-            <span aria-hidden="true">/</span>
-            <span className="text-[var(--c-ink-soft)]">{article.section.title}</span>
-          </>
-        )}
+    <article className="wrap" style={{ paddingTop: 34, maxWidth: 980 }}>
+      {/* breadcrumb */}
+      <nav style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", font: "500 13.5px var(--text)", color: "var(--ink-faint)", marginBottom: 30 }}>
+        <button onClick={() => go({ name: "chapter", n: a.chapter.number })} style={{ background: "none", border: "none", color: "var(--ink-soft)", padding: 0, font: "inherit", cursor: "pointer" }}>{lang === "ar" ? `الباب ${toAr(a.chapter.number)} · ${a.chapter.title}` : `Chapter ${a.chapter.number}`}</button>
+        <Icon name={lang === "ar" ? "left" : "right"} size={14} />
+        <span>{a.section ? a.section.title : ""}</span>
       </nav>
 
-      {/* Specimen header: huge numeral */}
-      <header className="reveal mt-6 flex flex-wrap items-end justify-between gap-6 border-b border-[var(--c-rule)] pb-8">
-        <div className="flex items-end gap-4">
-          <span className="specimen-numeral text-[var(--c-accent)]">{numLabel}</span>
-          <div className="pb-2">
-            <p className="eyebrow">{t("article_word")}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              {article.isAmended && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--c-amend-soft)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-amend)]">
-                  <span className="size-1.5 rounded-full bg-[var(--c-amend)]" />
-                  {t("amended")}
-                </span>
-              )}
-              {article.lastUpdated && (
-                <Link to="/timeline" className="badge-live no-print" title={t("timeline_title")}>
-                  <span className="live-dot" />
-                  {t("last_updates")} · {toArabicDigits(article.lastUpdated)}هـ
-                </Link>
-              )}
-            </div>
-          </div>
+      {/* hero number row */}
+      <header style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: "clamp(20px,4vw,48px)", alignItems: "center", marginBottom: 30 }}>
+        <div style={{ lineHeight: 1 }}>
+          <div style={{ font: "600 13px var(--text)", letterSpacing: ".2em", color: "var(--ink-faint)", marginBottom: 4 }}>{lang === "ar" ? "المادة" : "ARTICLE"}</div>
+          <div className="num" style={{ fontSize: "var(--t-mega)", fontWeight: 800, color: "var(--accent)", letterSpacing: "-.02em" }}>{toAr(num)}</div>
         </div>
-
-        <div className="no-print flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => toggle(id)}
-            aria-pressed={bookmarked}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[var(--fz-xs)] transition-colors ${
-              bookmarked
-                ? "border-[var(--c-accent)] bg-[var(--c-accent-soft)] text-[var(--c-accent)]"
-                : "border-[var(--c-rule)] text-[var(--c-ink-soft)] hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-            }`}
-          >
-            <BookmarkIcon filled={bookmarked} />
-            {bookmarked ? t("bookmark_remove") : t("bookmark_add")}
-          </button>
-          <button
-            type="button"
-            onClick={copy}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-          >
-            {copied ? t("copied") : t("copy")}
-          </button>
-          <button
-            type="button"
-            onClick={() => downloadArticleCard(article, numLabel, lang)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-          >
-            {t("share")}
-          </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {a.isAmended && <Badge tone="amber"><Icon name="spark" size={14} />{lang === "ar" ? "مادة مُعدَّلة" : "Amended"}</Badge>}
+            {isRecentlyAmended(a) && (
+              <button onClick={() => go({ name: "timeline" })} title={lang === "ar" ? "اعرض خط التعديلات" : "View amendments"} style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+                <span className="badge-live">
+                  <span className="live-dot" />
+                  {lang === "ar" ? `آخر التحديثات · ${a.amendedYear}هـ` : `Latest update · ${a.amendedYear}`}
+                </span>
+              </button>
+            )}
+          </div>
+          {a.sample && <Badge tone="accent"><Icon name="doc" size={14} />{lang === "ar" ? "نص تمثيلي — بانتظار النص الرسمي" : "Sample text"}</Badge>}
+          {/* action row */}
+          <div className="no-print" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+            <Btn size="sm" variant={saved ? "solid" : "ghost"} icon={saved ? "bookmarkF" : "bookmark"} onClick={() => toggle(a.id)}>{saved ? (lang === "ar" ? "محفوظة" : "Saved") : (lang === "ar" ? "حفظ" : "Save")}</Btn>
+            <Btn size="sm" variant="ghost" icon={copied ? "check" : "copy"} onClick={copyLink}>{copied ? (lang === "ar" ? "تم النسخ" : "Copied") : (lang === "ar" ? "نسخ الرابط" : "Copy link")}</Btn>
+            <Btn size="sm" variant="ghost" icon="share" onClick={() => go({ name: "card", num: a.id })}>{lang === "ar" ? "بطاقة" : "Card"}</Btn>
+          </div>
         </div>
       </header>
 
-      {/* Official text */}
-      <section className="mt-9">
-        <SectionLabel>{t("official_text")}</SectionLabel>
-        <div className="mt-3 rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] p-6">
-          <p className="text-[var(--fz-lg)] leading-[var(--lh-prose)] text-[var(--c-ink)]">
-            <GlossaryText
-              text={article.officialText}
-              enableTooltips={article.id !== GLOSSARY_ARTICLE}
-            />
-          </p>
-        </div>
+      <hr className="hairline" style={{ marginBottom: 34 }} />
 
-        {article.isAmended && (
-          <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => setShowOriginal((v) => !v)}
-              className="text-[var(--fz-xs)] text-[var(--c-ink-faint)] underline decoration-dashed underline-offset-4 transition-colors hover:text-[var(--c-accent)]"
-            >
-              {t("show_original")} {showOriginal ? "▲" : "▼"}
+      {/* official text */}
+      <section style={{ marginBottom: 40 }}>
+        <Kicker style={{ marginBottom: 14 }}>{lang === "ar" ? "النص الرسمي" : "Official text"}</Kicker>
+        <div style={{ background: "var(--paper-2)", border: "1px solid var(--hair)", borderRadius: 14, padding: "clamp(22px,3.5vw,34px)", borderInlineStart: "3px solid var(--ink)" }}>
+          <p style={{ margin: 0, fontSize: "clamp(18px,2.3vw,22px)", lineHeight: 2, fontWeight: 400 }}><GlossText text={a.officialText} lang={lang} /></p>
+        </div>
+        {a.isAmended && a.originalText && (
+          <div style={{ marginTop: 12 }}>
+            <button onClick={() => setShowOriginal(!showOriginal)} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "none", border: "none", color: "var(--amber)", font: "600 13.5px var(--text)", padding: "6px 0", cursor: "pointer" }}>
+              <Icon name={showOriginal ? "x" : "doc"} size={16} />{showOriginal ? (lang === "ar" ? "إخفاء النص الأصلي" : "Hide original") : (lang === "ar" ? "عرض النص الأصلي قبل التعديل" : "Show original text")}
             </button>
             {showOriginal && (
-              <div className="mt-2 rounded-[var(--rad-sm)] border border-dashed border-[var(--c-rule)] bg-[var(--c-paper)] p-4 text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)]">
-                {article.originalText || (
-                  <span className="italic text-[var(--c-ink-faint)]">
-                    {t("original_pending")}
-                  </span>
-                )}
-                {article.amendmentInfo && (
-                  <p className="mt-3 border-t border-[var(--c-rule)] pt-3 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-                    {article.amendmentInfo}
-                  </p>
-                )}
+              <div style={{ marginTop: 8, background: "var(--amber-tint)", border: "1px solid color-mix(in srgb,var(--amber) 25%,transparent)", borderRadius: 12, padding: "18px 22px" }}>
+                <div style={{ font: "600 12px var(--text)", color: "var(--amber)", letterSpacing: ".1em", marginBottom: 8 }}>{a.amendmentInfo || (lang === "ar" ? "النص قبل التعديل" : "Pre-amendment")}</div>
+                <p style={{ margin: 0, color: "var(--ink-soft)", lineHeight: 1.9 }}>{a.originalText}</p>
               </div>
             )}
           </div>
         )}
       </section>
 
-      {/* ببساطة — simplified (informal) */}
-      {article.simplifiedAr && (
-        <section className="mt-9">
-          <div className="flex items-center justify-between gap-3">
-            <SectionLabel accent>{t("simply")}</SectionLabel>
-            <InformalBadge />
-          </div>
-          <p className="mt-3 border-e-2 border-[var(--c-accent)] bg-[var(--c-accent-soft)] py-3 pe-4 ps-5 text-[var(--fz-base)] leading-[var(--lh-prose)] text-[var(--c-ink)]">
-            {article.simplifiedAr}
-          </p>
-        </section>
-      )}
-
-      {/* مثال عملي — the heart of the idea */}
-      {article.example && (
-        <section className="mt-9">
-          <div className="flex items-center justify-between gap-3">
-            <SectionLabel>{t("example")}</SectionLabel>
-            <InformalBadge />
-          </div>
-          <div className="mt-3 overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)]">
-            <div className="border-b border-[var(--c-rule)] bg-[var(--c-paper)] p-5">
-              <p className="eyebrow mb-1.5">{t("scenario")}</p>
-              <p className="text-[var(--fz-base)] leading-relaxed text-[var(--c-ink)]">
-                {article.example.scenario}
-              </p>
-            </div>
-            <div className="bg-[var(--c-paper-2)] p-5">
-              <p className="eyebrow mb-1.5 text-[var(--c-accent)]">{t("outcome")}</p>
-              <p className="text-[var(--fz-base)] leading-relaxed text-[var(--c-ink)]">
-                {article.example.outcome}
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Keywords */}
-      {article.keywords?.length > 0 && (
-        <section className="mt-9">
-          <SectionLabel>{t("keywords")}</SectionLabel>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {article.keywords.map((k) => (
-              <span
-                key={k}
-                className="rounded-full border border-[var(--c-rule)] px-3 py-1 text-[var(--fz-xs)] text-[var(--c-ink-soft)]"
-              >
-                {k}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Related */}
-      {article.relatedArticles?.length > 0 && (
-        <section className="mt-9">
-          <SectionLabel>{t("related")}</SectionLabel>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {article.relatedArticles
-              .filter((r) => articles[r])
-              .map((r) => (
-                <Link
-                  key={r}
-                  to={`/article/${r}`}
-                  className="font-display rounded-[var(--rad-sm)] border border-[var(--c-rule)] px-3 py-1.5 text-[var(--fz-sm)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-                >
-                  {t("article_word")} {displayArticleNumber(articles[r], lang)}
-                </Link>
-              ))}
-          </div>
-        </section>
-      )}
-
-      {/* أدوات الباحث: رابط مباشر · اقتباس نظامي · طباعة/PDF */}
-      <section className="no-print mt-9">
-        <SectionLabel>{t("tools")}</SectionLabel>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <CopyButton label={t("copy_link")} getText={() => window.location.href} />
-          <CopyButton
-            label={t("copy_citation")}
-            getText={() =>
-              `${t("article_word")} (${numLabel}) من ${LAW_META.titleAr} الصادر بـ${LAW_META.decree} وتاريخ ${LAW_META.decreeDate}. ${window.location.href}`
-            }
-          />
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-          >
-            {t("print_pdf")}
-          </button>
+      {/* simplified */}
+      <section style={{ marginBottom: 36, display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: 18 }}>
+        <div style={{ width: 44, height: 44, borderRadius: 12, background: "var(--accent-tint)", display: "grid", placeItems: "center", color: "var(--accent)" }}><Icon name="spark" size={22} /></div>
+        <div>
+          <h3 className="display" style={{ fontSize: 21, fontWeight: 800, margin: "6px 0 10px", color: "var(--accent)" }}>{lang === "ar" ? "ببساطة" : "In short"}</h3>
+          <p style={{ margin: 0, fontSize: 17.5, lineHeight: 1.95, color: "var(--ink)" }}>{a.simplifiedAr}</p>
         </div>
       </section>
 
-      {/* Prev / next */}
-      <nav className="no-print mt-12 flex items-stretch justify-between gap-3 border-t border-[var(--c-rule)] pt-6">
-        <AdjacentLink to={prev} dir="prev" label={t("prev")} />
-        <AdjacentLink to={next} dir="next" label={t("next")} />
-      </nav>
-    </article>
-  );
-}
-
-function CopyButton({ label, getText }) {
-  const { t } = useI18n();
-  const [done, setDone] = useState(false);
-  const onClick = async () => {
-    try {
-      await navigator.clipboard.writeText(getText());
-      setDone(true);
-      setTimeout(() => setDone(false), 1800);
-    } catch {
-      /* ignore */
-    }
-  };
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--c-rule)] px-3.5 py-2 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-    >
-      {done ? t("copied") : label}
-    </button>
-  );
-}
-
-// مادة موجودة في بنية النظام لكن نصّها قيد الإدخال.
-function PendingArticle({ id }) {
-  const { t, lang } = useI18n();
-  const slot = getSlot(id);
-  if (!slot) return <NotFound />;
-  const chapter = getChapter(slot.chapter);
-  const label = displayArticleNumber({ articleNumber: slot.n, mukarrar: slot.mukarrar }, lang);
-
-  return (
-    <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <nav className="flex flex-wrap items-center gap-2 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-        <Link to="/chapters" className="hover:text-[var(--c-accent)]">
-          {t("nav_chapters")}
-        </Link>
-        {chapter && (
-          <>
-            <span aria-hidden="true">/</span>
-            <Link to={`/chapter/${chapter.number}`} className="hover:text-[var(--c-accent)]">
-              {t("chapter_word")} {ordinalAr(chapter.number)} · {chapter.title}
-            </Link>
-          </>
-        )}
-      </nav>
-
-      <div className="reveal mt-10 flex flex-col items-center rounded-[var(--rad-md)] border border-dashed border-[var(--c-rule)] bg-[var(--c-paper-2)] px-6 py-16 text-center">
-        <span className="specimen-numeral text-[var(--c-ink-faint)]">{label}</span>
-        <p className="eyebrow mt-2">{t("article_word")} {label}</p>
-        <p className="mt-4 max-w-md text-[var(--fz-base)] text-[var(--c-ink-soft)]">
-          {t("article_pending_full")}
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          {chapter && (
-            <Link
-              to={`/chapter/${chapter.number}`}
-              className="rounded-full bg-[var(--c-ink)] px-5 py-2.5 text-[var(--fz-sm)] text-[var(--c-paper)] transition-transform hover:-translate-y-0.5"
-            >
-              {chapter.title}
-            </Link>
+      {/* example — the centerpiece */}
+      {a.example && (
+        <section style={{ marginBottom: 44, background: "var(--card)", border: "1px solid var(--hair-strong)", borderRadius: 18, overflow: "hidden", boxShadow: "var(--shadow)" }}>
+          <div style={{ padding: "20px clamp(22px,3.5vw,32px)", borderBottom: "1px solid var(--hair)", display: "flex", alignItems: "center", gap: 10 }}>
+            <Icon name="layers" size={20} style={{ color: "var(--accent)" }} />
+            <span className="display" style={{ fontSize: 18, fontWeight: 800 }}>{lang === "ar" ? "مثال عملي" : "Real example"}</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}>
+            <div style={{ padding: "26px clamp(22px,3.5vw,32px)" }}>
+              <div className="kicker" style={{ marginBottom: 10 }}>{lang === "ar" ? "الموقف" : "Scenario"}</div>
+              <p style={{ margin: 0, lineHeight: 1.9, fontSize: 16 }}>{a.example.scenario}</p>
+            </div>
+            <div style={{ padding: "26px clamp(22px,3.5vw,32px)", background: "var(--accent-tint)", borderInlineStart: "1px solid var(--hair)" }}>
+              <div className="kicker" style={{ marginBottom: 10, color: "var(--accent)" }}>{lang === "ar" ? "النتيجة وفق المادة" : "Outcome"}</div>
+              <p style={{ margin: 0, lineHeight: 1.9, fontSize: 16, fontWeight: 500 }}>{a.example.outcome}</p>
+            </div>
+          </div>
+          {a.calculator && (
+            <button onClick={() => go({ name: "calc", tool: a.calculator })} className="no-print" style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "16px clamp(22px,3.5vw,32px)", background: "var(--accent)", color: "var(--paper)", border: "none", font: "700 15px var(--text)", cursor: "pointer" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}><Icon name="calc" size={20} />{lang === "ar" ? "جرّب الحاسبة المرتبطة بهذه المادة" : "Try the linked calculator"}</span>
+              <Icon name={lang === "ar" ? "left" : "right"} size={20} />
+            </button>
           )}
-          <Link
-            to="/coverage"
-            className="rounded-full border border-[var(--c-rule)] px-5 py-2.5 text-[var(--fz-sm)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-          >
-            {t("coverage_title")}
-          </Link>
+        </section>
+      )}
+
+      {/* keywords + related */}
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 30, marginBottom: 30 }}>
+        <div>
+          <Kicker style={{ marginBottom: 14 }}>{lang === "ar" ? "كلمات مفتاحية" : "Keywords"}</Kicker>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {(a.keywords || []).map((k) => (
+              <button key={k} onClick={() => go({ name: "search", q: k })} style={{ background: "var(--paper-2)", border: "1px solid var(--hair)", borderRadius: 999, padding: "7px 14px", font: "500 13.5px var(--text)", color: "var(--ink-soft)", cursor: "pointer" }}>{k}</button>
+            ))}
+          </div>
         </div>
+        <div>
+          <Kicker style={{ marginBottom: 14 }}>{lang === "ar" ? "مواد ذات صلة" : "Related"}</Kicker>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {(a.relatedArticles || []).map((r) => (
+              <button key={r} onClick={() => go({ name: "article", num: r })} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "transparent", border: "1px solid var(--hair-strong)", borderRadius: 10, padding: "8px 13px", font: "600 14px var(--text)", color: "var(--ink)", cursor: "pointer" }}>
+                <span style={{ color: "var(--accent)" }}>{lang === "ar" ? "م" : "Art."}</span><span className="num">{toAr(r)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <hr className="hairline" style={{ marginBlock: 28 }} />
+
+      {/* prev / next */}
+      <nav style={{ display: "flex", justifyContent: "space-between", gap: 14, marginBottom: 20 }}>
+        {prev ? <PrevNext lang={lang} dir="prev" num={prev} go={go} /> : <span />}
+        {next ? <PrevNext lang={lang} dir="next" num={next} go={go} /> : <span />}
+      </nav>
+
+      {/* disclaimer */}
+      <div style={{ background: "var(--paper-2)", border: "1px dashed var(--hair-strong)", borderRadius: 12, padding: "16px 20px", display: "flex", gap: 12, alignItems: "flex-start", color: "var(--ink-faint)", fontSize: 13, lineHeight: 1.75 }}>
+        <Icon name="shield" size={18} style={{ flexShrink: 0, marginTop: 2 }} />
+        <span>{lang === "ar" ? "الشرح والمثال تبسيطيان غير رسميين لأغراض تعريفية، ولا يُعدّان استشارة قانونية. النص الرسمي الساري هو المنشور في المصدر الرسمي." : "The explanation and example are unofficial and informational, not legal advice."}</span>
       </div>
-    </div>
-  );
-}
-
-function SectionLabel({ children, accent }) {
-  return (
-    <h2
-      className={`font-display flex items-center gap-2 text-[var(--fz-sm)] font-bold ${
-        accent ? "text-[var(--c-accent)]" : "text-[var(--c-ink)]"
-      }`}
-    >
-      <span
-        className={`h-3 w-1 rounded-full ${
-          accent ? "bg-[var(--c-accent)]" : "bg-[var(--c-ink-faint)]"
-        }`}
-      />
-      {children}
-    </h2>
-  );
-}
-
-function InformalBadge() {
-  const { t } = useI18n();
-  return (
-    <span className="rounded-full bg-[var(--c-paper-3)] px-2.5 py-0.5 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-      {t("informal_badge")}
-    </span>
-  );
-}
-
-function BookmarkIcon({ filled }) {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M6 3h12v18l-6-4-6 4V3Z"
-        fill={filled ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function AdjacentLink({ to, dir, label }) {
-  const { lang } = useI18n();
-  const target = to ? getArticle(to) : null;
-  if (!target) return <span className="flex-1" aria-hidden="true" />;
-  const arrow = dir === "next" ? "←" : "→";
-  return (
-    <Link
-      to={`/article/${target.id}`}
-      className={`group flex flex-1 flex-col gap-1 rounded-[var(--rad-md)] border border-[var(--c-rule)] p-4 transition-colors hover:border-[var(--c-accent)] ${
-        dir === "next" ? "items-start text-start" : "items-end text-end"
-      }`}
-    >
-      <span className="text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-        {arrow} {label}
-      </span>
-      <span className="font-display text-[var(--fz-lg)] font-bold text-[var(--c-ink)] transition-colors group-hover:text-[var(--c-accent)]">
-        {displayArticleNumber(target, lang)}
-      </span>
-    </Link>
+    </article>
   );
 }
