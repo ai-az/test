@@ -98,14 +98,18 @@ export const LABOR = {
   chapters: chaptersList,
   articles: [...enteredList, ...pendingList],
   glossary: GLOSSARY.map((g) => ({ term: g.term, def: g.definition })),
-  scenarios: SCENARIOS.map((s) => ({
-    id: s.id,
-    icon: SCENARIO_ICON[s.id] || "doc",
-    title: s.title,
-    desc: s.lead,
-    articles: s.articleIds.map((x) => (/^\d+$/.test(x) ? Number(x) : x)),
-    calculator: s.calculator || null,
-  })),
+  // ترتيب المواقف يطابق المرجع: أول ٤ أقراص في الغلاف = فصل/استقالة/راتب/إصابة
+  scenarios: ["fired", "resign", "salary-late", "injury", "leave", "overtime"]
+    .map((id) => SCENARIOS.find((s) => s.id === id))
+    .filter(Boolean)
+    .map((s) => ({
+      id: s.id,
+      icon: SCENARIO_ICON[s.id] || "doc",
+      title: s.title,
+      desc: s.lead,
+      articles: s.articleIds.map((x) => (/^\d+$/.test(x) ? Number(x) : x)),
+      calculator: s.calculator || null,
+    })),
 };
 
 export const findArticle = (num) =>
