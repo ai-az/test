@@ -1,70 +1,48 @@
-import { Link } from "react-router-dom";
+// خط التعديلات — منقول عقدة-بعقدة من screens2.jsx
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { amendments } from "../data/amendments.js";
-import { getArticle } from "../data/articles.js";
-import { displayArticleNumber } from "../lib/format.js";
+import { useGo } from "../components/handoff/useGo.js";
+import { PageHead, Badge } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr } from "../data/labor.js";
 
 export default function Timeline() {
-  const { t, lang } = useI18n();
+  const { lang } = useI18n();
+  const go = useGo();
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-10 border-b border-[var(--c-rule)] pb-8">
-        <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-3 text-[var(--fz-4xl)] font-black leading-none">
-          {t("timeline_title")}
-        </h1>
-        <p className="mt-4 max-w-xl text-[var(--fz-base)] text-[var(--c-ink-soft)]">
-          {t("timeline_lead")}
-        </p>
-      </header>
-
-      <ol className="relative ms-3 border-s border-[var(--c-rule)]">
-        {amendments.map((a) => (
-          <li key={a.decree} className="relative ms-8 pb-10 last:pb-0">
-            <span
-              className={`absolute -start-[41px] top-1 grid size-5 place-items-center rounded-full border-2 ${
-                a.kind === "origin"
-                  ? "border-[var(--c-accent)] bg-[var(--c-accent)]"
-                  : "border-[var(--c-accent)] bg-[var(--c-paper)]"
-              }`}
-            />
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-display text-[var(--fz-2xl)] font-black text-[var(--c-accent)]">
-                {a.decree}
-              </span>
-              <span className="text-[var(--fz-sm)] text-[var(--c-ink-faint)]">{a.date}</span>
-              {a.kind === "origin" && (
-                <span className="rounded-full bg-[var(--c-accent-soft)] px-2.5 py-0.5 text-[var(--fz-xs)] text-[var(--c-accent)]">
-                  {t("timeline_origin")}
-                </span>
-              )}
-            </div>
-            <p className="mt-1.5 text-[var(--fz-base)] leading-relaxed text-[var(--c-ink-soft)]">
-              {a.note}
-            </p>
-            {a.articleIds.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {a.articleIds.map((aid) => {
-                  const art = getArticle(aid);
-                  return (
-                    <Link
-                      key={aid}
-                      to={`/article/${aid}`}
-                      className="font-display rounded-[var(--rad-sm)] border border-[var(--c-rule)] px-2.5 py-1 text-[var(--fz-xs)] text-[var(--c-ink-soft)] transition-colors hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-                    >
-                      {t("article_word")} {art ? displayArticleNumber(art, lang) : aid}
-                    </Link>
-                  );
-                })}
+    <div className="wrap" style={{ paddingTop: 40, maxWidth: 820 }}>
+      <PageHead kicker={lang === "ar" ? "تطوّر النظام" : "Evolution"} title={lang === "ar" ? "خط التعديلات" : "Amendments"}
+        sub={lang === "ar" ? "رحلة النظام من صدوره عام ١٤٢٦هـ حتى أحدث تعديلاته. الأرقام والتواريخ تُراجَع من المصدر الرسمي." : "From 1426 AH to the latest amendment."} />
+      <div style={{ position: "relative", paddingInlineStart: 30 }}>
+        <div style={{ position: "absolute", insetInlineStart: 7, top: 8, bottom: 8, width: 2, background: "var(--hair)" }} />
+        {LABOR.amendments.map((m, i) => (
+          <div key={m.decree} style={{ position: "relative", paddingBottom: i === LABOR.amendments.length - 1 ? 0 : 34 }}>
+            <div style={{ position: "absolute", insetInlineStart: -30, top: 6, width: 16, height: 16, borderRadius: 9, background: i === LABOR.amendments.length - 1 ? "var(--accent)" : "var(--paper)", border: `2px solid ${i === LABOR.amendments.length - 1 ? "var(--accent)" : "var(--hair-strong)"}` }} />
+            <div style={{ background: "var(--card)", border: "1px solid var(--hair)", borderRadius: 14, padding: "20px 24px" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
+                <span className="display num" style={{ fontSize: 26, fontWeight: 800, color: "var(--accent)" }}>{m.decree}</span>
+                <span style={{ font: "600 14px var(--text)", color: "var(--ink-faint)" }}>{m.year}</span>
+                <Badge tone={i === LABOR.amendments.length - 1 ? "accent" : "amber"} style={{ marginInlineStart: "auto" }}>{m.label}</Badge>
               </div>
-            )}
-          </li>
+              <p style={{ margin: "0 0 8px", lineHeight: 1.85 }}>{m.note}</p>
+              <div style={{ font: "500 13px var(--text)", color: "var(--ink-faint)" }}>{lang === "ar" ? "المواد المتأثرة: " : "Articles: "}{m.articles}</div>
+              {(() => {
+                const yr = (m.year || "").replace("هـ", "");
+                const arts = LABOR.articles.filter((x) => !x.status && x.amendedYear === yr);
+                if (!arts.length) return null;
+                return (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 12 }}>
+                    {arts.map((x) => (
+                      <button key={x.id} onClick={() => go({ name: "article", num: x.articleNumber })}
+                        style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--paper-2)", border: "1px solid var(--hair-strong)", borderRadius: 9, padding: "6px 11px", font: "600 13px var(--text)", color: "var(--ink)", cursor: "pointer" }}>
+                        <span style={{ color: "var(--accent)" }}>{lang === "ar" ? "م" : "Art."}</span><span className="num">{toAr(x.articleNumber)}</span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
         ))}
-      </ol>
-
-      <p className="mt-8 text-[var(--fz-xs)] leading-relaxed text-[var(--c-ink-faint)]">
-        {t("timeline_note")}
-      </p>
+      </div>
     </div>
   );
 }

@@ -59,6 +59,22 @@ export function Badge({ children, tone = "amber", style }) {
   );
 }
 
+export function PageHead({ kicker, title, sub }) {
+  return (
+    <div style={{ marginBottom: 36 }}>
+      <Kicker style={{ marginBottom: 14 }}>{kicker}</Kicker>
+      <h1 className="display" style={{ fontSize: "clamp(34px,6vw,64px)", fontWeight: 900, margin: "0 0 14px", letterSpacing: "-.02em" }}>{title}</h1>
+      {sub && <p style={{ color: "var(--ink-soft)", fontSize: "clamp(16px,2vw,19px)", maxWidth: 640, margin: 0, lineHeight: 1.8 }}>{sub}</p>}
+    </div>
+  );
+}
+
+export function FilterChip({ active, onClick, label }) {
+  return (
+    <button onClick={onClick} style={{ background: active ? "var(--accent)" : "transparent", color: active ? "var(--paper)" : "var(--ink-soft)", border: `1px solid ${active ? "var(--accent)" : "var(--hair-strong)"}`, borderRadius: 999, padding: "9px 16px", font: "600 13.5px var(--text)", whiteSpace: "nowrap", cursor: "pointer" }}>{label}</button>
+  );
+}
+
 export function Btn({ children, onClick, variant = "ghost", icon, size = "md", style, title, active }) {
   const base = {
     display: "inline-flex", alignItems: "center", gap: 9, justifyContent: "center",

@@ -1,41 +1,31 @@
-import { Link } from "react-router-dom";
+// حسب الموقف — منقول عقدة-بعقدة من screens2.jsx
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { scenarios } from "../data/scenarios.js";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, PageHead } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr } from "../data/labor.js";
 
 export default function Scenarios() {
-  const { t } = useI18n();
+  const { lang } = useI18n();
+  const go = useGo();
   return (
-    <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-10 border-b border-[var(--c-rule)] pb-8">
-        <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-3 text-[var(--fz-4xl)] font-black leading-none">
-          {t("scenarios_title")}
-        </h1>
-        <p className="mt-4 max-w-xl text-[var(--fz-base)] text-[var(--c-ink-soft)]">
-          {t("scenarios_lead")}
-        </p>
-      </header>
-
-      <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-rule)] sm:grid-cols-2">
-        {scenarios.map((s) => (
-          <li key={s.id}>
-            <Link
-              to={`/start/${s.id}`}
-              className="group flex h-full flex-col gap-3 bg-[var(--c-paper)] p-6 transition-colors hover:bg-[var(--c-paper-2)]"
-            >
-              <span className="font-display grid size-11 place-items-center rounded-full bg-[var(--c-accent-soft)] text-[var(--fz-xl)] text-[var(--c-accent)]">
-                {s.icon}
-              </span>
-              <h2 className="text-[var(--fz-lg)] leading-snug text-[var(--c-ink)] group-hover:text-[var(--c-accent)]">
-                {s.title}
-              </h2>
-              <p className="text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-faint)]">
-                {s.lead}
-              </p>
-            </Link>
-          </li>
+    <div className="wrap" style={{ paddingTop: 40 }}>
+      <PageHead kicker={lang === "ar" ? "ابدأ من حالتك" : "Start here"} title={lang === "ar" ? "حسب الموقف" : "By situation"}
+        sub={lang === "ar" ? "لا تبدأ من رقم الباب — ابدأ من موقفك، ودعنا نقودك إلى المواد والحاسبة المناسبة." : "Start from your situation, not a chapter number."} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 16 }}>
+        {LABOR.scenarios.map((s) => (
+          <button key={s.id} onClick={() => go({ name: "scenario", id: s.id })} style={{
+            textAlign: "start", background: "var(--card)", border: "1px solid var(--hair-strong)", borderRadius: 16,
+            padding: 26, display: "flex", flexDirection: "column", gap: 14, minHeight: 180, boxShadow: "var(--shadow)", cursor: "pointer",
+          }}>
+            <div style={{ width: 48, height: 48, borderRadius: 13, background: "var(--accent-tint)", display: "grid", placeItems: "center", color: "var(--accent)" }}><Icon name={s.icon} size={24} /></div>
+            <div className="display" style={{ fontSize: 20, fontWeight: 800, marginTop: 4 }}>{s.title}</div>
+            <p style={{ margin: 0, color: "var(--ink-soft)", fontSize: 14.5, lineHeight: 1.8 }}>{s.desc}</p>
+            <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 8, color: "var(--accent)", font: "600 13.5px var(--text)" }}>
+              {lang === "ar" ? `${toAr(s.articles.length)} مواد مرتبطة` : `${s.articles.length} articles`}<Icon name={lang === "ar" ? "left" : "right"} size={16} />
+            </div>
+          </button>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

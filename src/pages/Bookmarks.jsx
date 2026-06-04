@@ -1,50 +1,35 @@
-import { Link } from "react-router-dom";
+// المحفوظة — منقول عقدة-بعقدة من screens2.jsx (مربوط بتخزيننا المحلي)
 import { useI18n } from "../i18n/I18nContext.jsx";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, PageHead, Btn } from "../components/handoff/primitives.jsx";
+import { findArticle, toAr } from "../data/labor.js";
 import { useBookmarks } from "../lib/storage.js";
-import { getArticle } from "../data/articles.js";
-import { displayNumber, ordinalAr } from "../lib/format.js";
 
 export default function Bookmarks() {
-  const { t, lang } = useI18n();
-  const { ids } = useBookmarks();
-  const saved = ids.map(getArticle).filter(Boolean);
-
+  const { lang } = useI18n();
+  const go = useGo();
+  const { ids, toggle } = useBookmarks();
+  const items = ids.map((id) => findArticle(id)).filter((a) => a && !a.status);
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-8 border-b border-[var(--c-rule)] pb-6">
-        <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-2 text-[var(--fz-4xl)] font-black leading-none">
-          {t("bookmarks_title")}
-        </h1>
-      </header>
-
-      {saved.length === 0 ? (
-        <p className="rounded-[var(--rad-md)] border border-dashed border-[var(--c-rule)] bg-[var(--c-paper-2)] px-5 py-10 text-center text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
-          {t("bookmarks_empty")}
-        </p>
+    <div className="wrap" style={{ paddingTop: 40, maxWidth: 880 }}>
+      <PageHead kicker={lang === "ar" ? "محلي على جهازك" : "Local"} title={lang === "ar" ? "المواد المحفوظة" : "Saved articles"}
+        sub={lang === "ar" ? "تُحفظ محلياً في متصفّحك فقط، دون أي تسجيل." : "Stored locally in your browser only."} />
+      {items.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "70px 20px", border: "1px dashed var(--hair-strong)", borderRadius: 16 }}>
+          <Icon name="bookmark" size={40} style={{ color: "var(--ink-faint)" }} />
+          <p style={{ color: "var(--ink-soft)", marginTop: 14 }}>{lang === "ar" ? "لا توجد مواد محفوظة بعد. استخدم زر «حفظ» في صفحة أي مادة." : "No saved articles yet."}</p>
+          <Btn variant="ghost" onClick={() => go({ name: "browse" })} icon={lang === "ar" ? "left" : "right"} style={{ marginTop: 8 }}>{lang === "ar" ? "تصفّح الأبواب" : "Browse"}</Btn>
+        </div>
       ) : (
-        <ul className="divide-y divide-[var(--c-rule)] overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)]">
-          {saved.map((a) => (
-            <li key={a.id}>
-              <Link
-                to={`/article/${a.id}`}
-                className="group flex items-center gap-4 bg-[var(--c-paper)] px-5 py-4 transition-colors hover:bg-[var(--c-paper-2)]"
-              >
-                <span className="font-display min-w-9 text-[var(--fz-xl)] font-black text-[var(--c-ink-faint)] transition-colors group-hover:text-[var(--c-accent)]">
-                  {displayNumber(a.articleNumber, lang)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="eyebrow block">
-                    {t("chapter_word")} {ordinalAr(a.chapter.number)} · {a.chapter.title}
-                  </span>
-                  <span className="mt-0.5 line-clamp-1 block text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
-                    {a.officialText}
-                  </span>
-                </span>
-              </Link>
-            </li>
+        <div style={{ display: "grid", gap: 12 }}>
+          {items.map((a) => (
+            <div key={a.id} style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: 18, alignItems: "center", background: "var(--card)", border: "1px solid var(--hair)", borderRadius: 13, padding: "16px 20px" }}>
+              <button onClick={() => go({ name: "article", num: a.articleNumber })} style={{ background: "none", border: "none", cursor: "pointer" }}><span className="num" style={{ fontSize: 34, fontWeight: 800, color: "var(--accent)" }}>{toAr(a.articleNumber)}</span></button>
+              <button onClick={() => go({ name: "article", num: a.articleNumber })} style={{ background: "none", border: "none", textAlign: "start", cursor: "pointer" }}><span style={{ font: "500 15px var(--text)", color: "var(--ink-soft)", lineHeight: 1.7 }}>{a.simplifiedAr.slice(0, 80)}…</span></button>
+              <button onClick={() => toggle(a.id)} className="act" title={lang === "ar" ? "إزالة" : "Remove"}><Icon name="x" size={18} /></button>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

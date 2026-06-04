@@ -1,86 +1,82 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+// البحث — overlay ضبابي ملء الشاشة، منقول عقدة-بعقدة من screens2.jsx
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { searchArticles, highlightParts } from "../lib/search.js";
-import { displayArticleNumber, displayNumber, ordinalAr } from "../lib/format.js";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, Kicker } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr } from "../data/labor.js";
+
+const stripTashkeel = (s) => (s || "").replace(/[ً-ْـ]/g, "");
 
 export default function Search() {
-  const { t, lang } = useI18n();
-  const [query, setQuery] = useState("");
-  const results = useMemo(() => searchArticles(query), [query]);
-  const active = query.trim().length >= 2;
+  const { lang } = useI18n();
+  const go = useGo();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(params.get("q") || "");
+  const inputRef = useRef(null);
+  useEffect(() => { inputRef.current && inputRef.current.focus(); }, []);
+  const onClose = () => navigate("/");
+
+  const ready = LABOR.articles.filter((a) => !a.status);
+  const nq = stripTashkeel(q.trim());
+  const results = !nq ? [] : ready.map((a) => {
+    const hay = stripTashkeel([a.articleNumber, a.officialText, a.simplifiedAr, (a.keywords || []).join(" "), a.chapter.title].join(" "));
+    const score = hay.includes(nq) ? (String(a.articleNumber) === nq ? 100 : 1) : 0;
+    return { a, score };
+  }).filter((r) => r.score > 0).sort((x, y) => y.score - x.score);
+
+  const hi = (text) => {
+    if (!nq) return text;
+    const raw = stripTashkeel(text);
+    const i = raw.indexOf(nq);
+    if (i === -1) return text.slice(0, 90);
+    const start = Math.max(0, i - 30);
+    return (start > 0 ? "…" : "") + text.slice(start, i) + "‹" + text.slice(i, i + nq.length) + "›" + text.slice(i + nq.length, i + nq.length + 50) + "…";
+  };
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-6">
-        <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-2 text-[var(--fz-4xl)] font-black leading-none">
-          {t("search_title")}
-        </h1>
-      </header>
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "color-mix(in srgb,var(--paper) 80%,transparent)", backdropFilter: "blur(16px)", overflowY: "auto" }}>
+      <div className="wrap" style={{ maxWidth: 760, paddingTop: "clamp(30px,8vh,90px)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, background: "var(--card)", border: "1px solid var(--hair-strong)", borderRadius: 16, padding: "8px 8px 8px 20px", boxShadow: "var(--shadow)" }}>
+          <Icon name="search" size={24} style={{ color: "var(--accent)" }} />
+          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={lang === "ar" ? "رقم المادة، أو كلمة: مكافأة، إجازة، إشعار…" : "Article number or keyword…"}
+            style={{ flex: 1, border: "none", outline: "none", background: "transparent", font: "500 18px var(--text)", color: "var(--ink)" }} />
+          <button onClick={onClose} className="act" style={{ flexShrink: 0 }}><Icon name="x" /></button>
+        </div>
 
-      <div className="relative">
-        <input
-          type="search"
-          autoFocus
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("search_placeholder")}
-          aria-label={t("search_title")}
-          className="w-full rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-paper-2)] px-5 py-4 text-[var(--fz-lg)] text-[var(--c-ink)] outline-none transition-colors placeholder:text-[var(--c-ink-faint)] focus:border-[var(--c-accent)]"
-        />
-      </div>
-
-      {!active && (
-        <p className="mt-6 text-[var(--fz-sm)] text-[var(--c-ink-faint)]">
-          {t("search_hint")}
-        </p>
-      )}
-
-      {active && (
-        <p className="mt-6 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-          {displayNumber(results.length, lang)} {t("search_count")}
-        </p>
-      )}
-
-      <ul className="mt-3 space-y-3">
-        {active && results.length === 0 && (
-          <li className="rounded-[var(--rad-md)] border border-dashed border-[var(--c-rule)] bg-[var(--c-paper-2)] px-5 py-8 text-center text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
-            {t("search_no_results")}
-          </li>
+        {!nq && (
+          <div style={{ marginTop: 28 }}>
+            <Kicker style={{ marginBottom: 14 }}>{lang === "ar" ? "بحث شائع" : "Popular"}</Kicker>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
+              {["مكافأة", "إجازة", "إشعار", "استقالة", "أجر إضافي", "فصل تعسفي", "٨٤"].map((k) => (
+                <button key={k} onClick={() => setQ(k)} style={{ background: "var(--paper-2)", border: "1px solid var(--hair)", borderRadius: 999, padding: "9px 16px", font: "500 14px var(--text)", color: "var(--ink-soft)", cursor: "pointer" }}>{k}</button>
+              ))}
+            </div>
+          </div>
         )}
-        {results.map((a) => (
-          <li key={a.id}>
-            <Link
-              to={`/article/${a.id}`}
-              className="group block rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-paper)] p-5 transition-colors hover:border-[var(--c-accent)] hover:bg-[var(--c-paper-2)]"
-            >
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="font-display text-[var(--fz-lg)] font-bold text-[var(--c-ink)] group-hover:text-[var(--c-accent)]">
-                  {t("article_word")} {displayArticleNumber(a, lang)}
-                </span>
-                <span className="eyebrow shrink-0">
-                  {t("chapter_word")} {ordinalAr(a.chapter.number)} · {a.chapter.title}
-                </span>
-              </div>
-              <p className="mt-2 line-clamp-2 text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)]">
-                {highlightParts(a.officialText, query).map((p, i) =>
-                  p.hit ? (
-                    <mark
-                      key={i}
-                      className="rounded bg-[var(--c-accent-soft)] px-0.5 text-[var(--c-accent)]"
-                    >
-                      {p.text}
-                    </mark>
-                  ) : (
-                    <span key={i}>{p.text}</span>
-                  )
-                )}
-              </p>
-            </Link>
-          </li>
-        ))}
-      </ul>
+
+        {nq && (
+          <div style={{ marginTop: 22 }}>
+            <div style={{ font: "500 13px var(--text)", color: "var(--ink-faint)", marginBottom: 12 }}>{toAr(results.length)} {lang === "ar" ? "نتيجة" : "results"}</div>
+            <div style={{ display: "grid", gap: 10 }}>
+              {results.map(({ a }) => (
+                <button key={a.id} onClick={() => { go({ name: "article", num: a.articleNumber }); }} style={{
+                  display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: 18, alignItems: "center", textAlign: "start",
+                  background: "var(--card)", border: "1px solid var(--hair)", borderRadius: 13, padding: "16px 20px", cursor: "pointer",
+                }}>
+                  <span className="num" style={{ fontSize: 36, fontWeight: 800, color: "var(--accent)", minWidth: 60 }}>{toAr(a.articleNumber)}</span>
+                  <span>
+                    <span style={{ display: "block", font: "600 15px var(--text)", marginBottom: 4 }}>{a.chapter.title}</span>
+                    <span style={{ display: "block", font: "400 13.5px var(--text)", color: "var(--ink-faint)", lineHeight: 1.7 }}>{hi(a.simplifiedAr)}</span>
+                  </span>
+                </button>
+              ))}
+              {results.length === 0 && <div style={{ textAlign: "center", padding: 50, color: "var(--ink-faint)" }}>{lang === "ar" ? "لا نتائج. جرّب كلمة أخرى." : "No results."}</div>}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

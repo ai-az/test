@@ -1,111 +1,51 @@
-import { useParams, Link } from "react-router-dom";
+// تفصيل الموقف — منقول عقدة-بعقدة من screens2.jsx
+import { useParams } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { getScenario } from "../data/scenarios.js";
-import { getArticle } from "../data/articles.js";
-import { getCalculator } from "../data/calculators.js";
-import { displayArticleNumber } from "../lib/format.js";
-import NotFound from "./NotFound.jsx";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, Kicker } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr } from "../data/labor.js";
 
 export default function ScenarioDetail() {
   const { id } = useParams();
-  const { t, lang } = useI18n();
-  const scenario = getScenario(id);
-  if (!scenario) return <NotFound />;
-
-  const calc = scenario.calculator ? getCalculator(scenario.calculator) : null;
-
+  const { lang } = useI18n();
+  const go = useGo();
+  const s = LABOR.scenarios.find((x) => x.id === id);
+  if (!s) return null;
+  const have = new Map(LABOR.articles.filter((a) => !a.status).map((a) => [a.articleNumber, a]));
+  const calcArt = s.articles.map((n) => have.get(n)).find((a) => a && a.calculator);
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
-      <nav className="flex items-center gap-2 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-        <Link to="/start" className="hover:text-[var(--c-accent)]">
-          {t("scenarios_title")}
-        </Link>
-        <span aria-hidden="true">/</span>
-        <span className="text-[var(--c-ink-soft)]">{scenario.title}</span>
-      </nav>
-
-      <header className="reveal mt-6 flex items-start gap-4 border-b border-[var(--c-rule)] pb-8">
-        <span className="font-display grid size-12 shrink-0 place-items-center rounded-full bg-[var(--c-accent-soft)] text-[var(--fz-2xl)] text-[var(--c-accent)]">
-          {scenario.icon}
-        </span>
-        <div className="min-w-0 pt-1">
-          <h1 className="font-display text-[var(--fz-2xl)] font-bold leading-tight">
-            {scenario.title}
-          </h1>
-          <p className="mt-2 text-[var(--fz-base)] text-[var(--c-ink-soft)]">
-            {scenario.lead}
-          </p>
-        </div>
-      </header>
-
-      {calc && (
-        <Link
-          to={`/calculators/${calc.id}`}
-          className="mt-8 flex items-center justify-between gap-4 rounded-[var(--rad-md)] border border-[var(--c-accent)] bg-[var(--c-accent-soft)] p-5 transition-transform hover:-translate-y-0.5"
-        >
-          <span>
-            <span className="font-display block text-[var(--fz-lg)] font-bold text-[var(--c-accent)]">
-              {calc.title}
-            </span>
-            <span className="text-[var(--fz-sm)] text-[var(--c-ink-soft)]">
-              {t("scenario_calc_cta")}
-            </span>
-          </span>
-          <span className="text-[var(--fz-xl)] text-[var(--c-accent)] rtl:rotate-180">→</span>
-        </Link>
-      )}
-
-      <h2 className="font-display mt-10 mb-3 flex items-center gap-2 text-[var(--fz-sm)] font-bold text-[var(--c-ink)]">
-        <span className="h-3 w-1 rounded-full bg-[var(--c-ink-faint)]" />
-        {t("scenario_articles")}
-      </h2>
-      <ul className="divide-y divide-[var(--c-rule)] overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)]">
-        {scenario.articleIds.map((aid) => {
-          const a = getArticle(aid);
-          if (!a) {
-            return (
-              <li
-                key={aid}
-                className="flex items-center gap-4 bg-[var(--c-paper)] px-5 py-4 text-[var(--c-ink-faint)]"
-              >
-                <span className="font-display min-w-9 text-[var(--fz-xl)] font-black">
-                  {aid}
-                </span>
-                <span className="text-[var(--fz-sm)]">{t("article_pending_label")}</span>
-              </li>
-            );
-          }
+    <div className="wrap" style={{ paddingTop: 38, maxWidth: 880 }}>
+      <button onClick={() => go({ name: "scenarios" })} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "none", border: "none", color: "var(--ink-faint)", font: "500 13.5px var(--text)", padding: 0, marginBottom: 26, cursor: "pointer" }}>
+        <Icon name={lang === "ar" ? "right" : "left"} size={16} />{lang === "ar" ? "كل المواقف" : "All situations"}
+      </button>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 14 }}>
+        <div style={{ width: 60, height: 60, borderRadius: 16, background: "var(--accent-tint)", display: "grid", placeItems: "center", color: "var(--accent)" }}><Icon name={s.icon} size={30} /></div>
+        <h1 className="display" style={{ fontSize: "clamp(28px,4.5vw,46px)", fontWeight: 800, margin: 0 }}>{s.title}</h1>
+      </div>
+      <p style={{ color: "var(--ink-soft)", fontSize: 18, lineHeight: 1.8, maxWidth: 620 }}>{s.desc}</p>
+      <hr className="hairline" style={{ marginBlock: 30 }} />
+      <Kicker style={{ marginBottom: 16 }}>{lang === "ar" ? "المواد التي تهمّك" : "Relevant articles"}</Kicker>
+      <div style={{ display: "grid", gap: 12 }}>
+        {s.articles.map((n) => {
+          const a = have.get(n);
           return (
-            <li key={aid}>
-              <Link
-                to={`/article/${a.id}`}
-                className="group flex items-center gap-4 bg-[var(--c-paper)] px-5 py-4 transition-colors hover:bg-[var(--c-paper-2)]"
-              >
-                <span className="font-display min-w-9 text-[var(--fz-xl)] font-black text-[var(--c-ink-faint)] group-hover:text-[var(--c-accent)]">
-                  {displayArticleNumber(a, lang)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="eyebrow block">
-                    {t("article_word")} {displayArticleNumber(a, lang)}
-                  </span>
-                  <span className="mt-0.5 line-clamp-2 block text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-soft)]">
-                    {a.simplifiedAr || a.officialText}
-                  </span>
-                </span>
-                {a.isAmended && (
-                  <span className="shrink-0 rounded-full bg-[var(--c-amend-soft)] px-2.5 py-1 text-[var(--fz-xs)] text-[var(--c-amend)]">
-                    {t("amended")}
-                  </span>
-                )}
-              </Link>
-            </li>
+            <button key={n} onClick={() => go({ name: "article", num: n })} style={{
+              display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: 18, alignItems: "center", textAlign: "start",
+              background: a ? "var(--card)" : "var(--paper-2)", border: "1px solid var(--hair)", borderRadius: 13, padding: "16px 20px", opacity: a ? 1 : .6, cursor: "pointer",
+            }}>
+              <span className="num" style={{ fontSize: 32, fontWeight: 800, color: "var(--accent)", minWidth: 52 }}>{toAr(n)}</span>
+              <span style={{ font: "500 15px var(--text)", color: "var(--ink-soft)", lineHeight: 1.7 }}>{a ? a.simplifiedAr.slice(0, 80) + "…" : (lang === "ar" ? "قيد الإدخال" : "pending")}</span>
+              {a && <Icon name={lang === "ar" ? "left" : "right"} size={20} style={{ color: "var(--ink-faint)" }} />}
+            </button>
           );
         })}
-      </ul>
-
-      <p className="mt-8 text-[var(--fz-xs)] leading-relaxed text-[var(--c-ink-faint)]">
-        {t("disclaimer")}
-      </p>
+      </div>
+      {calcArt && (
+        <button onClick={() => go({ name: "calc", tool: calcArt.calculator })} style={{ marginTop: 22, width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--accent)", color: "var(--paper)", border: "none", borderRadius: 14, padding: "18px 24px", font: "700 16px var(--text)", cursor: "pointer" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}><Icon name="calc" size={22} />{lang === "ar" ? "احسب تقديرك بالحاسبة المناسبة" : "Open the calculator"}</span>
+          <Icon name={lang === "ar" ? "left" : "right"} size={22} />
+        </button>
+      )}
     </div>
   );
 }

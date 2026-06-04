@@ -12,7 +12,6 @@ import IndexMap from "./pages/IndexMap.jsx";
 import Scenarios from "./pages/Scenarios.jsx";
 import ScenarioDetail from "./pages/ScenarioDetail.jsx";
 import Calculators from "./pages/Calculators.jsx";
-import CalculatorView from "./pages/CalculatorView.jsx";
 import Timeline from "./pages/Timeline.jsx";
 import Coverage from "./pages/Coverage.jsx";
 import Bookmarks from "./pages/Bookmarks.jsx";
@@ -44,7 +43,7 @@ export default function App() {
         <Route path="/start" element={<Scenarios />} />
         <Route path="/start/:id" element={<ScenarioDetail />} />
         <Route path="/calculators" element={<Calculators />} />
-        <Route path="/calculators/:id" element={<CalculatorView />} />
+        <Route path="/calculators/:id" element={<Calculators />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/coverage" element={<Coverage />} />
         <Route path="/bookmarks" element={<Bookmarks />} />

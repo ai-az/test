@@ -1,61 +1,32 @@
-import { Link } from "react-router-dom";
+// الأبواب (Browse) — منقول عقدة-بعقدة من screens2.jsx
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { chapters } from "../data/chapters.js";
-import { articlesInChapter } from "../data/articles.js";
-import { displayNumber, ordinalAr } from "../lib/format.js";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, PageHead } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr } from "../data/labor.js";
 
 export default function Chapters() {
-  const { t, lang } = useI18n();
-
+  const { lang } = useI18n();
+  const go = useGo();
   return (
-    <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-10 border-b border-[var(--c-rule)] pb-8">
-        <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-3 text-[var(--fz-4xl)] font-black leading-none">
-          {t("chapters_title")}
-        </h1>
-        <p className="mt-4 max-w-xl text-[var(--fz-base)] text-[var(--c-ink-soft)]">
-          {t("chapters_lead")}
-        </p>
-      </header>
-
-      <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-[var(--rad-md)] border border-[var(--c-rule)] bg-[var(--c-rule)] md:grid-cols-2">
-        {chapters.map((c) => {
-          const count = articlesInChapter(c.number).length;
-          return (
-            <li key={c.number}>
-              <Link
-                to={`/chapter/${c.number}`}
-                className="group flex h-full flex-col gap-3 bg-[var(--c-paper)] p-6 transition-colors duration-150 hover:bg-[var(--c-paper-2)]"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <span className="font-display text-[var(--fz-4xl)] font-black leading-none text-[var(--c-ink-faint)] transition-colors group-hover:text-[var(--c-accent)]">
-                    {displayNumber(c.number, lang)}
-                  </span>
-                  {count > 0 && (
-                    <span className="shrink-0 rounded-full bg-[var(--c-accent-soft)] px-2.5 py-1 text-[var(--fz-xs)] text-[var(--c-accent)]">
-                      {displayNumber(count, lang)} {t("articles_entered")}
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <span className="eyebrow block">
-                    {t("chapter_word")} {ordinalAr(c.number) || c.number}
-                  </span>
-                  <h2 className="mt-1 text-[var(--fz-lg)] leading-snug text-[var(--c-ink)]">
-                    {c.title}
-                  </h2>
-                </div>
-                {c.sections.length > 0 && (
-                  <p className="text-[var(--fz-sm)] leading-relaxed text-[var(--c-ink-faint)]">
-                    {c.sections.map((s) => s.title).join(" · ")}
-                  </p>
-                )}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+    <div className="wrap" style={{ paddingTop: 40 }}>
+      <PageHead kicker={lang === "ar" ? "تصفّح" : "Browse"} title={lang === "ar" ? "الأبواب" : "Chapters"}
+        sub={lang === "ar" ? "النظام موزّع على ١٦ باباً و٢٤٥ مادة. اختر باباً لعرض فصوله ومواده." : "16 chapters, 245 articles."} />
+      <div style={{ borderTop: "1px solid var(--hair)" }}>
+        {LABOR.chapters.map((c) => (
+          <button key={c.n} onClick={() => go({ name: "chapter", n: c.n })} className="row-cell" style={{
+            width: "100%", display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: "clamp(16px,3vw,36px)",
+            alignItems: "center", textAlign: "start", background: "transparent", border: "none",
+            borderBottom: "1px solid var(--hair)", padding: "26px 8px", cursor: "pointer",
+          }}>
+            <div className="num" style={{ fontSize: "clamp(40px,6vw,68px)", fontWeight: 800, color: "var(--accent)", lineHeight: .9, minWidth: 90 }}>{toAr(c.n).padStart(2, "٠")}</div>
+            <div>
+              <div className="display" style={{ fontSize: "clamp(18px,2.4vw,24px)", fontWeight: 700, marginBottom: 4 }}>{lang === "ar" ? c.title : c.en}</div>
+              <div style={{ font: "500 13.5px var(--text)", color: "var(--ink-faint)" }}>{lang === "ar" ? `${toAr(c.count)} مادة · المواد ${toAr(c.from)}–${toAr(c.to)}` : `${c.count} articles · ${c.from}–${c.to}`}</div>
+            </div>
+            <Icon name={lang === "ar" ? "left" : "right"} size={26} style={{ color: "var(--ink-faint)" }} />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

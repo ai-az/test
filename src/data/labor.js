@@ -7,6 +7,7 @@ import { getEnteredArticles, getArticle } from "./articles.js";
 import { articleIndex, chapterSlots } from "./articleIndex.js";
 import { glossary as GLOSSARY } from "./glossary.js";
 import { scenarios as SCENARIOS } from "./scenarios.js";
+import { amendments as AMENDMENTS } from "./amendments.js";
 import { toArabicDigits } from "../lib/format.js";
 
 export const toAr = (n) => toArabicDigits(n);
@@ -21,15 +22,8 @@ const SCENARIO_ICON = {
   injury: "shield",
 };
 
-// ربط المادة بالحاسبة
-const CALC_OF = {
-  84: "end-of-service",
-  85: "end-of-service",
-  87: "end-of-service",
-  107: "overtime",
-  109: "annual-leave",
-  110: "annual-leave",
-};
+// ربط المادة بالحاسبة (معرّفات الحاسبات المرجعية: eos/ot/leave)
+const CALC_OF = { 84: "eos", 85: "eos", 87: "eos", 107: "ot", 75: "leave" };
 
 const LATEST_YEAR = "١٤٤٦";
 
@@ -98,6 +92,15 @@ export const LABOR = {
   chapters: chaptersList,
   articles: [...enteredList, ...pendingList],
   glossary: GLOSSARY.map((g) => ({ term: g.term, def: g.definition })),
+  amendments: AMENDMENTS.map((m) => ({
+    decree: m.decree,
+    year: `${toAr(m.year)}هـ`,
+    label: m.kind === "origin" ? "النظام الأساسي" : "تعديل",
+    note: m.note,
+    articles: m.articleIds && m.articleIds.length
+      ? `منها ${m.articleIds.map((x) => "م" + toAr(String(x).replace("م", " مكرر"))).join("، ")}`
+      : "مواد متفرقة",
+  })),
   // ترتيب المواقف يطابق المرجع: أول ٤ أقراص في الغلاف = فصل/استقالة/راتب/إصابة
   scenarios: ["fired", "resign", "salary-late", "injury", "leave", "overtime"]
     .map((id) => SCENARIOS.find((s) => s.id === id))

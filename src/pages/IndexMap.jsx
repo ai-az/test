@@ -1,109 +1,46 @@
+// الفهرس — منقول عقدة-بعقدة من screens2.jsx (IndexView)
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useI18n } from "../i18n/I18nContext.jsx";
-import { chapters } from "../data/chapters.js";
-import { getArticle } from "../data/articles.js";
-import { chapterSlots } from "../data/articleIndex.js";
-import { displayNumber } from "../lib/format.js";
+import { useGo } from "../components/handoff/useGo.js";
+import { Icon, PageHead, FilterChip } from "../components/handoff/primitives.jsx";
+import { LABOR, toAr, isRecentlyAmended } from "../data/labor.js";
 
 export default function IndexMap() {
-  const { t, lang } = useI18n();
-  const [filter, setFilter] = useState(0);
-  const shown = filter ? chapters.filter((c) => c.number === filter) : chapters;
-
+  const { lang } = useI18n();
+  const go = useGo();
+  const [chap, setChap] = useState(0);
+  const ready = LABOR.articles.filter((a) => !a.status).slice().sort((a, b) => a.order - b.order);
+  const shown = chap ? ready.filter((a) => a.chapter.number === chap) : ready;
   return (
-    <div className="mx-auto max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
-      <header className="reveal mb-6 border-b border-[var(--c-rule)] pb-6">
-        <p className="eyebrow">{t("siteName")}</p>
-        <h1 className="font-display mt-2 text-[var(--fz-4xl)] font-black leading-none">
-          {t("index_title")}
-        </h1>
-        <p className="mt-4 max-w-xl text-[var(--fz-base)] text-[var(--c-ink-soft)]">
-          {t("index_lead")}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-4 text-[var(--fz-xs)] text-[var(--c-ink-faint)]">
-          <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded border border-[var(--c-accent)] bg-[var(--c-accent-soft)]" />
-            {t("index_available")}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded border border-dashed border-[var(--c-rule)]" />
-            {t("index_pending")}
-          </span>
-        </div>
-      </header>
-
-      <div className="mb-8 flex flex-wrap gap-2">
-        <Chip active={filter === 0} onClick={() => setFilter(0)}>
-          {t("filter_all")}
-        </Chip>
-        {chapters.map((c) => (
-          <Chip key={c.number} active={filter === c.number} onClick={() => setFilter(c.number)}>
-            {displayNumber(c.number, lang)}
-          </Chip>
+    <div className="wrap" style={{ paddingTop: 40 }}>
+      <PageHead kicker={lang === "ar" ? "خريطة" : "Map"} title={lang === "ar" ? "الفهرس" : "Index"}
+        sub={lang === "ar" ? "عرض شامل لكل مادة مُدخلة، قابل للتصفية حسب الباب." : "Every entered article, filterable by chapter."} />
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 26 }}>
+        <FilterChip active={chap === 0} onClick={() => setChap(0)} label={lang === "ar" ? "الكل" : "All"} />
+        {LABOR.chapters.filter((c) => ready.some((a) => a.chapter.number === c.n)).map((c) => (
+          <FilterChip key={c.n} active={chap === c.n} onClick={() => setChap(c.n)} label={lang === "ar" ? `${toAr(c.n)}· ${c.title}` : c.en} />
         ))}
       </div>
-
-      <div className="space-y-8">
-        {shown.map((c) => {
-          const slots = chapterSlots(c.number);
-          return (
-            <section key={c.number}>
-              <h2 className="flex items-baseline gap-3 border-b border-[var(--c-rule)] pb-2">
-                <span className="font-display text-[var(--fz-2xl)] font-black text-[var(--c-accent)]">
-                  {displayNumber(c.number, lang)}
-                </span>
-                <Link
-                  to={`/chapter/${c.number}`}
-                  className="text-[var(--fz-lg)] text-[var(--c-ink)] hover:text-[var(--c-accent)]"
-                >
-                  {c.title}
-                </Link>
-              </h2>
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                {slots.map((s) => {
-                  const id = s.mukarrar ? `${s.n}م` : String(s.n);
-                  const entered = getArticle(id);
-                  return (
-                    <Link
-                      key={id}
-                      to={`/article/${id}`}
-                      title={entered ? entered.officialText.slice(0, 80) : t("article_pending_label")}
-                      className={`font-display inline-flex items-center gap-1 rounded-[var(--rad-sm)] border px-2.5 py-1 text-[var(--fz-sm)] transition-colors ${
-                        entered
-                          ? "border-[var(--c-accent)] bg-[var(--c-accent-soft)] text-[var(--c-accent)] hover:bg-[var(--c-accent)] hover:text-[var(--c-paper)]"
-                          : "border-dashed border-[var(--c-rule)] text-[var(--c-ink-faint)] hover:border-[var(--c-accent)]"
-                      }`}
-                    >
-                      {displayNumber(s.n, lang)}
-                      {s.mukarrar ? " م" : ""}
-                      {entered?.isAmended && (
-                        <span className="size-1.5 rounded-full bg-[var(--c-amend)]" />
-                      )}
-                    </Link>
-                  );
-                })}
+      <div style={{ borderTop: "1px solid var(--hair)" }}>
+        {shown.map((a) => (
+          <button key={a.id} onClick={() => go({ name: "article", num: a.articleNumber })} className="row-cell" style={{
+            width: "100%", display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: 22, alignItems: "center",
+            textAlign: "start", background: "transparent", border: "none", borderBottom: "1px solid var(--hair)", padding: "20px 6px", cursor: "pointer",
+          }}>
+            <div className="num" style={{ fontSize: 36, fontWeight: 800, color: "var(--accent)", minWidth: 64 }}>{toAr(a.articleNumber)}</div>
+            <div>
+              <div style={{ font: "600 16px var(--text)", marginBottom: 2 }}>{a.simplifiedAr.split("،")[0].split(".")[0].slice(0, 64)}…</div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", font: "500 12.5px var(--text)", color: "var(--ink-faint)" }}>
+                <span>{lang === "ar" ? `الباب ${toAr(a.chapter.number)}` : `Ch.${a.chapter.number}`}</span>
+                {a.isAmended && <span style={{ color: "var(--amber)" }}>· {lang === "ar" ? "مُعدَّلة" : "amended"}</span>}
+                {isRecentlyAmended(a) && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--accent)", fontWeight: 600 }}>· <span className="live-dot" style={{ width: 6, height: 6 }} />{lang === "ar" ? "آخر التحديثات" : "latest"}</span>}
+                {a.calculator && <span style={{ color: "var(--accent)" }}>· {lang === "ar" ? "حاسبة" : "calc"}</span>}
               </div>
-            </section>
-          );
-        })}
+            </div>
+            <Icon name={lang === "ar" ? "left" : "right"} size={20} style={{ color: "var(--ink-faint)" }} />
+          </button>
+        ))}
       </div>
     </div>
-  );
-}
-
-function Chip({ active, onClick, children }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`font-display rounded-full border px-3.5 py-1.5 text-[var(--fz-sm)] transition-colors ${
-        active
-          ? "border-[var(--c-accent)] bg-[var(--c-accent-soft)] text-[var(--c-accent)]"
-          : "border-[var(--c-rule)] text-[var(--c-ink-soft)] hover:border-[var(--c-accent)] hover:text-[var(--c-ink)]"
-      }`}
-    >
-      {children}
-    </button>
   );
 }
