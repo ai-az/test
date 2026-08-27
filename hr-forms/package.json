@@ -1,0 +1,8 @@
+{
+  "name": "albassami-hr-forms",
+  "private": true,
+  "version": "1.0.0",
+  "description": "مولد نماذج إدارة الموارد البشرية الموحدة — البسامي القابضة",
+  "scripts": { "build": "node build.js" },
+  "dependencies": { "docx": "^9.5.1" }
+}
