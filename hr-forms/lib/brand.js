@@ -21,7 +21,7 @@ module.exports = {
   FONT: "Dubai",
   FONT_FALLBACK: "Arial",
   // A4 — الهوامش: ٢٫٥ سم من كل جهة و٣ سم من اليمين للتجليد (بالتويب: ١ سم = ٥٦٧)
-  MARGINS: { top: 2140, right: 1701, bottom: 1480, left: 1418, header: 380, footer: 480 },
+  MARGINS: { top: 1300, right: 1701, bottom: 1480, left: 1418, header: 380, footer: 480 },
   CONTENT_W: 8787, // 11906 − 1701 − 1418
   ENTITY: "البسامي القابضة",
   DEPT: "إدارة الموارد البشرية",

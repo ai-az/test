@@ -1,32 +1,32 @@
-// المكوّنات المشتركة للنموذج الموحد — كل النماذج تُبنى من هذه القطع حصراً
+// المكوّنات المشتركة للنموذج الموحد — الإصدار الفني الثاني
+// الثوابت: الشعار وألوان الهوية فقط. الباقي لغة تصميم تحريرية حرة:
+// غلاف داكن بشعار معكوس + شريط ذهبي، أرقام أقسام شبحية، حقول بخطوط سفلية،
+// جداول بخطوط أفقية فقط، وتواقيع بأعمدة حرة.
 const fs = require("fs");
 const path = require("path");
 const {
   Document, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell,
   WidthType, BorderStyle, AlignmentType, VerticalAlign, ShadingType,
   Header, Footer, PageNumber, NumberFormat, HeightRule, TableLayoutType,
-  VerticalMergeType,
 } = require("docx");
 const { COLORS: C, FONT, MARGINS, CONTENT_W, ENTITY, DEPT, CONFIDENTIAL } = require("./brand");
 
-const LOGO = fs.readFileSync(path.join(__dirname, "..", "assets", "logo-primary.png"));
-// نسبة الشعار الثابتة ١ : ١٫٦٧ — عرض الترويسة في الوورد ٣٫٥ سم حسب الدليل
-const LOGO_W = 124, LOGO_H = Math.round(124 / 1.663);
+const LOGO_WHITE = fs.readFileSync(path.join(__dirname, "..", "assets", "logo-white.png"));
+const LOGO_GREEN = fs.readFileSync(path.join(__dirname, "..", "assets", "logo-primary.png"));
+const RATIO = 1.663; // نسبة الشعار الثابتة ١ : ١٫٦٧
+
+// ألوان مساعدة من سلّم الهوية
+const MID = "3EBB77", LIGHT = "7FD3A5", SOFT = "BEE9D1";
 
 // ── نصوص ──────────────────────────────────────────────
 function T(text, o = {}) {
   return new TextRun({
-    text,
-    rightToLeft: true,
-    font: FONT,
-    size: o.size ?? 20,
-    bold: o.bold ?? false,
-    color: o.color ?? C.CHAR,
+    text, rightToLeft: true, font: FONT,
+    size: o.size ?? 20, bold: o.bold ?? false, color: o.color ?? C.CHAR,
   });
 }
-// نص لاتيني (رموز النماذج والأكواد)
 function LT(text, o = {}) {
-  return new TextRun({ text, font: o.font ?? "Arial", size: o.size ?? 18, bold: o.bold ?? false, color: o.color ?? C.SLATE });
+  return new TextRun({ text, font: "Arial", size: o.size ?? 18, bold: o.bold ?? false, color: o.color ?? C.SLATE });
 }
 function P(o = {}) {
   return new Paragraph({
@@ -37,16 +37,12 @@ function P(o = {}) {
     border: o.border,
   });
 }
-const EMPTY_P = () => new Paragraph({ children: [] });
+const spacer = (h = 160) => P({ after: h });
 
 // ── حدود ──────────────────────────────────────────────
 const b = (color, size) => ({ style: BorderStyle.SINGLE, color, size });
 const NB = { style: BorderStyle.NONE, size: 0, color: "auto" };
 const noBorders = { top: NB, bottom: NB, left: NB, right: NB, insideHorizontal: NB, insideVertical: NB };
-const gridBorders = {
-  top: b(C.BORDER, 4), bottom: b(C.BORDER, 4), left: b(C.BORDER, 4), right: b(C.BORDER, 4),
-  insideHorizontal: b(C.BORDER, 4), insideVertical: b(C.BORDER, 4),
-};
 
 // ── خلايا وجداول ──────────────────────────────────────
 function cell(children, o = {}) {
@@ -54,244 +50,265 @@ function cell(children, o = {}) {
     children,
     width: o.w ? { size: o.w, type: WidthType.DXA } : undefined,
     columnSpan: o.span,
-    verticalMerge: o.vmerge,
     shading: o.fill ? { type: ShadingType.CLEAR, fill: o.fill, color: "auto" } : undefined,
     verticalAlign: o.va ?? VerticalAlign.CENTER,
-    margins: { top: o.pv ?? 70, bottom: o.pv ?? 70, left: o.ph ?? 110, right: o.ph ?? 110 },
-    borders: o.borders,
+    margins: { top: o.pv ?? 60, bottom: o.pv ?? 60, left: o.ph ?? 90, right: o.ph ?? 90 },
+    borders: o.borders ?? noBorders,
   });
 }
-function tbl(rows, widths, o = {}) {
+function tbl(rows, widths) {
   return new Table({
     visuallyRightToLeft: true,
     layout: TableLayoutType.FIXED,
     columnWidths: widths,
     width: { size: widths.reduce((a, x) => a + x, 0), type: WidthType.DXA },
     rows,
-    borders: o.borders ?? gridBorders,
+    borders: noBorders,
   });
 }
 const row = (cells, o = {}) => new TableRow({
   children: cells,
-  height: o.h ? { value: o.h, rule: HeightRule.ATLEAST } : undefined,
+  height: o.h ? { value: o.h, rule: o.exact ? HeightRule.EXACT : HeightRule.ATLEAST } : undefined,
   tableHeader: o.headerRow ?? false,
 });
 
-const spacer = (h = 140) => P({ after: h });
+// سطر تعبئة: فراغ للكتابة فوق خط أخضر متوسط
+const fillLine = (o = {}) => P({
+  before: o.before ?? 300,
+  border: { bottom: b(o.color ?? MID, o.size ?? 6) },
+});
+const fieldLabel = (text) => P({ children: [T(text, { size: 16, color: C.SLATE })] });
 
-// ── ترويسة الصفحة: شعار يمين + اسم النموذج + بطاقة بيانات النموذج، وتحتها الشريط الأخضر ──
-function pageHeader({ title, code, version, issueDate }) {
-  const wLogo = 2000, wMeta = 2450, wTitle = CONTENT_W - wLogo - wMeta;
-  const metaCell = (label, valueRuns) =>
-    cell([P({ children: [T(label + ":  ", { size: 16, color: C.SLATE, bold: true }), ...valueRuns] })],
-      { w: wMeta, fill: C.WHISPER, pv: 34, ph: 90 });
-
-  const headerTable = tbl([
+// ── ترويسة الصفحة الأولى: غلاف داكن بالشعار المعكوس + شريط ذهبي + سطر بيانات النموذج ──
+function firstHeader({ title, code, version, issueDate }) {
+  const wLogo = 2350, wTitle = CONTENT_W - wLogo;
+  const band = tbl([
     row([
       cell([P({ align: AlignmentType.CENTER, children: [
-        new ImageRun({ type: "png", data: LOGO, transformation: { width: LOGO_W, height: LOGO_H } }),
-      ] })], { w: wLogo, vmerge: VerticalMergeType.RESTART, fill: C.WHITE }),
+        new ImageRun({ type: "png", data: LOGO_WHITE, transformation: { width: 118, height: Math.round(118 / RATIO) } }),
+      ] })], { w: wLogo, fill: C.FOREST, pv: 150 }),
       cell([
-        P({ align: AlignmentType.CENTER, children: [T(ENTITY, { size: 21, bold: true, color: C.FOREST })], after: 20 }),
-        P({ align: AlignmentType.CENTER, children: [T(DEPT, { size: 17, color: C.GRAY })], after: 60 }),
-        P({ align: AlignmentType.CENTER, children: [T(title, { size: 26, bold: true, color: C.DEEP })] }),
-      ], { w: wTitle, vmerge: VerticalMergeType.RESTART, fill: C.WHITE }),
-      metaCell("رقم النموذج", [LT(code, { size: 17, bold: true, color: C.DEEP })]),
-    ]),
-    row([
-      cell([EMPTY_P()], { w: wLogo, vmerge: VerticalMergeType.CONTINUE }),
-      cell([EMPTY_P()], { w: wTitle, vmerge: VerticalMergeType.CONTINUE }),
-      metaCell("رقم الإصدار", [T(version, { size: 16 })]),
-    ]),
-    row([
-      cell([EMPTY_P()], { w: wLogo, vmerge: VerticalMergeType.CONTINUE }),
-      cell([EMPTY_P()], { w: wTitle, vmerge: VerticalMergeType.CONTINUE }),
-      metaCell("تاريخ الإصدار", [T(issueDate, { size: 16 })]),
-    ]),
-    row([
-      cell([EMPTY_P()], { w: wLogo, vmerge: VerticalMergeType.CONTINUE }),
-      cell([EMPTY_P()], { w: wTitle, vmerge: VerticalMergeType.CONTINUE }),
-      metaCell("الصفحة", [new TextRun({
-        rightToLeft: true, font: FONT, size: 16, color: C.CHAR,
-        children: [PageNumber.CURRENT, " من ", PageNumber.TOTAL_PAGES],
-      })]),
-    ]),
-  ], [wLogo, wTitle, wMeta]);
+        P({ children: [T(DEPT, { size: 17, color: LIGHT })], after: 60 }),
+        P({ children: [T(title, { size: 36, bold: true, color: C.WHITE })] }),
+      ], { w: wTitle, fill: C.FOREST, pv: 150, ph: 240 }),
+    ], { h: 1250 }),
+    // الشريط الذهبي — لمسة التمييز (≤ ١٠٪)
+    row([cell([P({ children: [new TextRun({ text: " ", size: 2 })] })], { w: CONTENT_W, span: 2, fill: C.GOLD, pv: 0, ph: 0 })],
+      { h: 80, exact: true }),
+  ], [wLogo, wTitle]);
 
-  // الشريط الأخضر بسماكة ٢ نقطة تحت الترويسة — حسب مواصفة الوورد في الدليل
-  const greenBar = P({ before: 60, border: { bottom: { style: BorderStyle.SINGLE, color: C.GREEN, size: 16 } } });
-  return new Header({ children: [headerTable, greenBar] });
+  const dot = () => T("   ·   ", { size: 16, color: C.GOLD, bold: true });
+  const meta = P({
+    before: 140, after: 60,
+    border: { bottom: b(C.CLOUD, 4) },
+    children: [
+      T("رقم النموذج  ", { size: 16, color: C.SLATE }),
+      LT(code, { size: 17, bold: true, color: C.DEEP }),
+      dot(),
+      T(`الإصدار  ${version}`, { size: 16, color: C.SLATE }),
+      dot(),
+      T(`تاريخ الإصدار  ${issueDate}`, { size: 16, color: C.SLATE }),
+      dot(),
+      new TextRun({
+        rightToLeft: true, font: FONT, size: 16, color: C.SLATE,
+        children: ["الصفحة ", PageNumber.CURRENT, " من ", PageNumber.TOTAL_PAGES],
+      }),
+    ],
+  });
+  return new Header({ children: [band, meta] });
 }
 
-// ── التذييل: الجهة يمين · سرية المستند وسط · رقم الصفحة يسار · ٩pt رمادي ──
-function pageFooter() {
-  const w = Math.round(CONTENT_W / 3);
-  const fcell = (children, align) =>
-    cell([P({ align, children })], {
-      w, pv: 40, ph: 0,
-      borders: { top: b(C.GREEN, 8), bottom: NB, left: NB, right: NB },
-    });
-  return new Footer({
+// ── ترويسة الصفحات التالية: شريط نحيف داكن ──
+function nextHeader({ title, code }) {
+  const w1 = Math.round(CONTENT_W * 0.62), w2 = CONTENT_W - w1;
+  return new Header({
     children: [
       tbl([
         row([
-          fcell([T(`${ENTITY} — ${DEPT}`, { size: 15, color: C.GRAY })], undefined),
-          fcell([T(CONFIDENTIAL, { size: 15, color: C.GRAY })], AlignmentType.CENTER),
-          fcell([new TextRun({
-            rightToLeft: true, font: FONT, size: 15, color: C.GRAY,
-            children: ["صفحة ", PageNumber.CURRENT, " من ", PageNumber.TOTAL_PAGES],
-          })], AlignmentType.LEFT),
+          cell([P({ children: [T(title, { size: 19, bold: true, color: C.WHITE })] })], { w: w1, fill: C.FOREST, pv: 80, ph: 240 }),
+          cell([P({ align: AlignmentType.LEFT, children: [
+            LT(code, { size: 16, bold: true, color: LIGHT }),
+          ] })], { w: w2, fill: C.FOREST, pv: 80, ph: 240 }),
         ]),
-      ], [w, w, CONTENT_W - 2 * w], { borders: noBorders }),
+        row([cell([P({ children: [new TextRun({ text: " ", size: 2 })] })], { w: CONTENT_W, span: 2, fill: C.GOLD, pv: 0, ph: 0 })],
+          { h: 60, exact: true }),
+      ], [w1, w2]),
     ],
   });
 }
 
-// ── شريط قسم: شارة رقمية داكنة بذهبي + عنوان أبيض على الأخضر الأساسي ──
+// ── التذييل: خيط فاصل ناعم · الجهة يمين · السرية وسط · الترقيم يسار ──
+function pageFooter() {
+  const w = Math.round(CONTENT_W / 3);
+  const fcell = (children, align) => cell([P({ align, children })], {
+    w, pv: 40, ph: 0,
+    borders: { top: b(C.CLOUD, 4), bottom: NB, left: NB, right: NB },
+  });
+  return new Footer({
+    children: [
+      tbl([row([
+        fcell([T(`${ENTITY} — ${DEPT}`, { size: 14, color: C.GRAY })]),
+        fcell([T(CONFIDENTIAL, { size: 14, color: C.GRAY })], AlignmentType.CENTER),
+        fcell([new TextRun({
+          rightToLeft: true, font: FONT, size: 15, color: C.GRAY,
+          children: ["صفحة ", PageNumber.CURRENT, " من ", PageNumber.TOTAL_PAGES],
+        })], AlignmentType.LEFT),
+      ])], [w, w, CONTENT_W - 2 * w]),
+    ],
+  });
+}
+
+// ── عنوان قسم: رقم شبحي كبير + عنوان غامق فوق خيط ذهبي ──
 function sectionBar(num, title) {
-  const wNum = 700;
+  const wNum = 950;
   return tbl([
     row([
-      cell([P({ align: AlignmentType.CENTER, children: [T(num, { size: 21, bold: true, color: C.GOLD })] })],
-        { w: wNum, fill: C.FOREST, pv: 60 }),
-      cell([P({ children: [T(title, { size: 22, bold: true, color: C.WHITE })] })],
-        { w: CONTENT_W - wNum, fill: C.GREEN, pv: 60 }),
-    ], { h: 380 }),
-  ], [wNum, CONTENT_W - wNum], { borders: noBorders });
+      cell([P({ align: AlignmentType.CENTER, children: [T(num, { size: 52, bold: true, color: SOFT })] })],
+        { w: wNum, pv: 20, borders: { top: NB, left: NB, right: NB, bottom: b(C.GOLD, 8) } }),
+      cell([P({ children: [T(title, { size: 26, bold: true, color: C.FOREST })] })],
+        { w: CONTENT_W - wNum, pv: 20, va: VerticalAlign.BOTTOM,
+          borders: { top: NB, left: NB, right: NB, bottom: b(C.GOLD, 8) } }),
+    ], { h: 560 }),
+  ], [wNum, CONTENT_W - wNum]);
 }
 
-// ── شبكة حقول: أزواج (تسمية/قيمة) — التسمية على أخضر همسي والقيمة فارغة للتعبئة ──
-// rows: مصفوفة صفوف، كل صف مصفوفة تسميات (١ أو ٢ في الصف)
-function fieldGrid(rows, o = {}) {
-  const wL = o.labelW ?? 1750;
-  const half = Math.round(CONTENT_W / 2);
-  const out = rows.map((r) => {
+// ── شبكة حقول: تسمية صغيرة فوق خط تعبئة — بلا صناديق ──
+function fieldGrid(rows) {
+  const GAP = 340;
+  const out = [];
+  rows.forEach((r) => {
     if (r.length === 1) {
-      return row([
-        cell([P({ children: [T(r[0], { size: 19, bold: true, color: C.FOREST })] })], { w: wL, fill: C.MIST }),
-        cell([P({ children: r._value ? [T(r._value, { size: 19 })] : [] })], { w: CONTENT_W - wL, span: 3 }),
-      ], { h: o.h ?? 440 });
+      out.push(row([cell([fieldLabel(r[0]), fillLine()], { w: CONTENT_W, pv: 70, ph: 20, va: VerticalAlign.TOP })]));
+    } else {
+      const wF = Math.round((CONTENT_W - GAP) / 2);
+      out.push(row([
+        cell([fieldLabel(r[0]), fillLine()], { w: wF, pv: 70, ph: 20, va: VerticalAlign.TOP }),
+        cell([P({})], { w: GAP, pv: 70, ph: 0 }),
+        cell([fieldLabel(r[1]), fillLine()], { w: CONTENT_W - wF - GAP, pv: 70, ph: 20, va: VerticalAlign.TOP }),
+      ]));
     }
-    return row([
-      cell([P({ children: [T(r[0], { size: 19, bold: true, color: C.FOREST })] })], { w: wL, fill: C.MIST }),
-      cell([P({})], { w: half - wL }),
-      cell([P({ children: [T(r[1], { size: 19, bold: true, color: C.FOREST })] })], { w: wL, fill: C.MIST }),
-      cell([P({})], { w: CONTENT_W - half - wL }),
-    ], { h: o.h ?? 440 });
   });
-  return tbl(out, [wL, half - wL, wL, CONTENT_W - half - wL]);
+  // توحيد أعمدة الجدول: ثلاثة أعمدة دائماً (الصف المفرد يمتد عليها)
+  const wF = Math.round((CONTENT_W - GAP) / 2);
+  const fixed = rows.map((r, i) => {
+    if (r.length === 1) {
+      return row([cell([fieldLabel(r[0]), fillLine()], { w: CONTENT_W, span: 3, pv: 70, ph: 20, va: VerticalAlign.TOP })]);
+    }
+    return out[i];
+  });
+  return tbl(fixed, [wF, GAP, CONTENT_W - wF - GAP]);
 }
 
-// ── جدول قوائم: ترويسة خضراء بنص أبيض + صفوف فارغة بديلة التظليل — مواصفة جداول الوورد ──
+// ── جدول قوائم تحريري: ترويسة بخيط أخضر سميك، صفوف بخيوط أفقية ناعمة فقط ──
 function listTable(headers, weights, nRows, o = {}) {
   const total = weights.reduce((a, x) => a + x, 0);
   const widths = weights.map((x) => Math.round((x / total) * CONTENT_W));
   widths[widths.length - 1] += CONTENT_W - widths.reduce((a, x) => a + x, 0);
   const head = row(
     headers.map((h, i) => cell(
-      [P({ align: AlignmentType.CENTER, children: [T(h, { size: 19, bold: true, color: C.WHITE })] })],
-      { w: widths[i], fill: C.GREEN, pv: 60 })),
-    { h: 420, headerRow: true }
+      [P({ align: AlignmentType.CENTER, children: [T(h, { size: 18, bold: true, color: C.FOREST })] })],
+      { w: widths[i], pv: 70, borders: { top: NB, left: NB, right: NB, bottom: b(C.GREEN, 12) } })),
+    { h: 400, headerRow: true }
   );
   const body = [];
   for (let r = 0; r < nRows; r++) {
+    const strong = o.strongRows && o.strongRows.includes(r);
     body.push(row(
       widths.map((w, i) => {
         const preset = o.rowsText && o.rowsText[r] && o.rowsText[r][i] != null ? o.rowsText[r][i] : null;
         return cell([P({
           align: o.alignRows ?? AlignmentType.CENTER,
-          children: preset != null ? [T(preset, { size: 19 })] : [],
-        })], { w, fill: r % 2 === 1 ? C.WHISPER : C.WHITE });
+          children: preset != null ? [T(preset, { size: 18, bold: strong, color: strong ? C.FOREST : C.DEEP })] : [],
+        })], {
+          w, fill: strong ? C.MIST : undefined,
+          borders: { top: NB, left: NB, right: NB, bottom: b(strong ? C.GREEN : C.CLOUD, strong ? 8 : 4) },
+        });
       }),
-      { h: o.rowH ?? 460 }
+      { h: o.rowH ?? 480 }
     ));
   }
   return tbl([head, ...body], widths);
 }
 
-// ── صف خيارات: تسمية + مربعات اختيار ──
-function checkRow(label, options, o = {}) {
-  const wL = o.labelW ?? 1750;
+// ── صف خيارات: تسمية صغيرة + مربعات اختيار خضراء ──
+function checkRow(label, options) {
   const opts = [];
   options.forEach((op, i) => {
-    if (i) opts.push(T("      ", { size: 20 }));
-    opts.push(new TextRun({ text: "☐ ", font: "Segoe UI Symbol", size: 21, color: C.DEEP }));
+    if (i) opts.push(T("        ", { size: 20 }));
+    opts.push(new TextRun({ text: "☐ ", font: "Segoe UI Symbol", size: 22, color: C.GREEN }));
     opts.push(T(op, { size: 19 }));
   });
   return tbl([
-    row([
-      cell([P({ children: [T(label, { size: 19, bold: true, color: C.FOREST })] })], { w: wL, fill: C.MIST }),
-      cell([P({ children: opts })], { w: CONTENT_W - wL }),
-    ], { h: 440 }),
-  ], [wL, CONTENT_W - wL]);
-}
-
-// ── صندوق ملاحظات/إقرار: خلفية أخضر ضبابي + شريط جانبي أخضر — مواصفة الاقتباسات ──
-function noteBox(title, lines, o = {}) {
-  const paras = [];
-  if (title) paras.push(P({ children: [T(title, { size: 19, bold: true, color: C.FOREST })], after: 70 }));
-  lines.forEach((ln) => paras.push(P({ children: [T(ln, { size: 18, color: C.CHAR })], after: 50, line: 300 })));
-  return tbl([
-    row([cell(paras, {
-      w: CONTENT_W, fill: C.MIST, pv: 130, ph: 180, va: VerticalAlign.TOP,
-      borders: { top: NB, bottom: NB, left: NB, right: { style: BorderStyle.SINGLE, color: C.GREEN, size: 24 } },
-    })]),
-  ], [CONTENT_W], { borders: noBorders });
-}
-
-// ── صندوق كتابة فارغ ──
-function writeBox(hint, hTwips = 1400) {
-  return tbl([
-    row([cell(
-      hint ? [P({ children: [T(hint, { size: 16, color: C.GRAY })] })] : [EMPTY_P()],
-      { w: CONTENT_W, va: VerticalAlign.TOP, pv: 90, ph: 140 }
-    )], { h: hTwips }),
+    row([cell([fieldLabel(label), P({ before: 120, children: opts })],
+      { w: CONTENT_W, pv: 70, ph: 20, va: VerticalAlign.TOP,
+        borders: { top: NB, left: NB, right: NB, bottom: b(C.CLOUD, 4) } })]),
   ], [CONTENT_W]);
 }
 
-// ── كتلة الاعتمادات: إعداد / مراجعة / اعتماد ──
-function approvalBlock(roles, o = {}) {
-  const heads = ["الصفة", "الاسم", "المسمى الوظيفي", "التوقيع", "التاريخ"];
-  const weights = [16, 24, 24, 20, 16];
-  const total = weights.reduce((a, x) => a + x, 0);
-  const widths = weights.map((x) => Math.round((x / total) * CONTENT_W));
-  widths[4] += CONTENT_W - widths.reduce((a, x) => a + x, 0);
-  const head = row(
-    heads.map((h, i) => cell(
-      [P({ align: AlignmentType.CENTER, children: [T(h, { size: 18, bold: true, color: C.WHITE })] })],
-      { w: widths[i], fill: C.GREEN, pv: 50 })),
-    { h: 380, headerRow: true }
-  );
-  const body = roles.map(([stage, roleTitle]) => row([
-    cell([P({ align: AlignmentType.CENTER, children: [T(stage, { size: 18, bold: true, color: C.FOREST })] })],
-      { w: widths[0], fill: C.MIST }),
-    cell([P({})], { w: widths[1] }),
-    cell([P({ align: AlignmentType.CENTER, children: roleTitle ? [T(roleTitle, { size: 17, color: C.SLATE })] : [] })], { w: widths[2] }),
-    cell([P({})], { w: widths[3] }),
-    cell([P({})], { w: widths[4] }),
-  ], { h: 560 }));
-  return tbl([head, ...body], widths);
+// ── صندوق إقرار/تنويه: خلفية همسية وشريط ذهبي جانبي ──
+function noteBox(title, lines) {
+  const paras = [];
+  if (title) paras.push(P({ children: [T(title, { size: 20, bold: true, color: C.FOREST })], after: 90 }));
+  lines.forEach((ln) => paras.push(P({ children: [T(ln, { size: 18, color: C.CHAR })], after: 60, line: 310 })));
+  return tbl([
+    row([cell(paras, {
+      w: CONTENT_W, fill: C.WHISPER, pv: 160, ph: 240, va: VerticalAlign.TOP,
+      borders: { top: NB, bottom: NB, left: NB, right: { style: BorderStyle.SINGLE, color: C.GOLD, size: 28 } },
+    })]),
+  ], [CONTENT_W]);
+}
+
+// ── مساحة كتابة حرة: أسطر مُسطّرة للكتابة اليدوية ──
+function writeBox(hint, hTwips = 1400) {
+  const lines = Math.max(2, Math.round(hTwips / 480));
+  const paras = [];
+  if (hint) paras.push(P({ children: [T(hint, { size: 15, color: C.GRAY })], after: 40 }));
+  for (let i = 0; i < lines; i++) paras.push(fillLine({ before: 340, color: C.BORDER, size: 6 }));
+  return tbl([row([cell(paras, { w: CONTENT_W, pv: 40, ph: 20, va: VerticalAlign.TOP })])], [CONTENT_W]);
+}
+
+// ── كتلة الاعتمادات: أعمدة حرة — وسم أخضر، مسمى، ثم خطوط الاسم والتوقيع والتاريخ ──
+function approvalBlock(roles) {
+  const n = roles.length;
+  const GAP = 300;
+  const wCol = Math.round((CONTENT_W - GAP * (n - 1)) / n);
+  const cells = [];
+  const widths = [];
+  roles.forEach(([stage, roleTitle], i) => {
+    if (i) { cells.push(cell([P({})], { w: GAP, ph: 0 })); widths.push(GAP); }
+    cells.push(cell([
+      P({ align: AlignmentType.CENTER, children: [T(stage, { size: 18, bold: true, color: C.DEEP })], after: 30 }),
+      P({ align: AlignmentType.CENTER, children: [T(roleTitle || " ", { size: 14, color: C.GRAY })], after: 60 }),
+      fieldLabel("الاسم"), fillLine({ before: 260 }),
+      fieldLabel("التوقيع"), fillLine({ before: 300 }),
+      fieldLabel("التاريخ"), fillLine({ before: 260 }),
+    ], {
+      w: wCol, pv: 90, ph: 110, va: VerticalAlign.TOP,
+      borders: { top: b(C.GREEN, 12), bottom: NB, left: NB, right: NB },
+      fill: C.WHISPER,
+    }));
+    widths.push(wCol);
+  });
+  widths[widths.length - 1] += CONTENT_W - widths.reduce((a, x) => a + x, 0);
+  return tbl([row(cells)], widths);
 }
 
 // ── تجميع مستند كامل ──
-function buildDoc({ title, code, version = "١٫٠", issueDate = "        /        /        ", children }) {
+function buildDoc({ title, code, version = "١٫٠", issueDate = "      /      /      ", children }) {
   return new Document({
     creator: ENTITY,
     title,
     description: `${title} — ${ENTITY} · ${DEPT}`,
-    styles: {
-      default: {
-        document: { run: { font: FONT, size: 20, color: C.CHAR } },
-      },
-    },
+    styles: { default: { document: { run: { font: FONT, size: 20, color: C.CHAR } } } },
     sections: [{
       properties: {
-        page: {
-          margin: MARGINS,
-          pageNumbers: { formatType: NumberFormat.HINDI_NUMBERS },
-        },
+        titlePage: true,
+        page: { margin: MARGINS, pageNumbers: { formatType: NumberFormat.HINDI_NUMBERS } },
       },
-      headers: { default: pageHeader({ title, code, version, issueDate }) },
+      headers: {
+        first: firstHeader({ title, code, version, issueDate }),
+        default: nextHeader({ title, code }),
+      },
       footers: { default: pageFooter() },
       children,
     }],
@@ -299,7 +316,7 @@ function buildDoc({ title, code, version = "١٫٠", issueDate = "        /     
 }
 
 module.exports = {
-  T, LT, P, spacer, cell, tbl, row, b, NB, noBorders, gridBorders,
+  T, LT, P, spacer, cell, tbl, row, b, NB, noBorders,
   sectionBar, fieldGrid, listTable, checkRow, noteBox, writeBox, approvalBlock, buildDoc,
-  AlignmentType, VerticalAlign, HeightRule, C, CONTENT_W,
+  AlignmentType, VerticalAlign, C, CONTENT_W, LOGO_GREEN,
 };
