@@ -57,7 +57,7 @@ jobs:
       - name: Cut raw segments
         run: |
           mkdir -p media/raw
-          cut() { ffmpeg -y -v error -ss "$2" -to "$3" -i video.mp4 -c copy "media/raw/$1.mp4"; }
+          cut() { ffmpeg -y -v error -ss "$2" -to "$3" -i video.mp4 -c:v libx264 -preset veryfast -crf 20 -c:a aac -b:a 128k -movflags +faststart "media/raw/$1.mp4"; }
           cut seg1_razi     1318 1491
           cut seg2_khusro   1520 1612
           cut seg3_abubakr  1987 2140
