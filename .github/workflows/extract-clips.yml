@@ -1,4 +1,4 @@
-name: Extract video segments
+name: Build TikTok clips
 
 on:
   workflow_dispatch:
@@ -7,15 +7,19 @@ on:
       - claude/tiktok-video-clips-extraction-l9um55
     paths:
       - .github/workflows/extract-clips.yml
+      - scripts/tiktok/**
       - .work/trigger.txt
 
 permissions:
-  contents: write
+  contents: read
+
+env:
+  VIDEO_URL: "https://youtu.be/nSH6Hpw8Dpg"
 
 jobs:
-  extract:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -23,11 +27,18 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install tools
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install system + python deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-          pip install -U "yt-dlp[default]" yt-dlp-ejs bgutil-ytdlp-pot-provider
+          sudo apt-get install -y -qq ffmpeg libraqm0
+          python -m pip install -q -U "yt-dlp[default]" yt-dlp-ejs bgutil-ytdlp-pot-provider \
+            Pillow uharfbuzz "fonttools[woff]"
+          node --version
+          yt-dlp --version
 
       - name: Start PO token provider
         run: |
@@ -36,39 +47,60 @@ jobs:
           npm install --silent
           npx tsc
           nohup node build/main.js > /tmp/pot.log 2>&1 &
-          sleep 3
-          curl -s http://127.0.0.1:4416/ping || true
+          for i in $(seq 1 15); do
+            curl -sf http://127.0.0.1:4416/ping && break || sleep 2
+          done
+          echo
 
-      - name: Download video
+      - name: Fetch Thmanyah font
+        working-directory: scripts/tiktok
+        run: python fetch_thmanyah.py   # transient, not committed
+
+      - name: Download clip windows (HLS bypasses SABR)
+        working-directory: scripts/tiktok
         run: |
           set +e
-          for clients in "web_safari,android,web" "tv" "web_embedded,web" "android_vr" "ios"; do
-            echo "=== trying player_client=$clients"
-            yt-dlp --extractor-args "youtube:player_client=$clients" \
-              -f "18/b[height<=480]/b" -o video.mp4 \
-              --retries 5 --socket-timeout 30 \
-              "https://youtu.be/nSH6Hpw8Dpg" && break
-            sleep 10
+          COMMON="--js-runtimes node --sleep-requests 2 -N 4 \
+                  --extractor-args youtube:player_client=web_safari;webpo_bind=never"
+          declare -A SEC=(
+            [clip1_alrazi]="*1318-1483"
+            [clip2_taslim]="*1528-1605"
+            [clip3_abubakr]="*1987-2131"
+            [clip4_alghar]="*2381-2483"
+            [clip5_musa]="*2488-2666"
+          )
+          mkdir -p raw
+          for round in $(seq 1 25); do
+            echo "===== ROUND $round"
+            allok=1
+            for name in clip1_alrazi clip2_taslim clip3_abubakr clip4_alghar clip5_musa; do
+              out="raw/${name}.mp4"
+              if [ -f "$out" ] && [ "$(stat -c%s "$out")" -gt 400000 ]; then continue; fi
+              yt-dlp --js-runtimes node --sleep-requests 2 -N 4 \
+                --extractor-args "youtube:player_client=web_safari;webpo_bind=never" \
+                -f 94/93 --download-sections "${SEC[$name]}" --force-keyframes-at-cuts \
+                -o "raw/${name}.%(ext)s" "$VIDEO_URL" 2>&1 | tail -1
+              [ -f "$out" ] && [ "$(stat -c%s "$out")" -gt 400000 ] || { allok=0; sleep 20; }
+            done
+            [ "$allok" = "1" ] && break
+            sleep 30
           done
           set -e
-          test -f video.mp4
-          ffprobe -v error -show_entries format=duration -of csv=p=0 video.mp4
+          ls -la raw/
+          # fail loudly if nothing downloaded
+          test -n "$(ls -A raw/*.mp4 2>/dev/null)"
 
-      - name: Cut raw segments
+      - name: Render final clips
+        working-directory: scripts/tiktok
         run: |
-          mkdir -p media/raw
-          cut() { ffmpeg -y -v error -ss "$2" -to "$3" -i video.mp4 -c:v libx264 -preset veryfast -crf 20 -c:a aac -b:a 128k -movflags +faststart "media/raw/$1.mp4"; }
-          cut seg1_razi     1318 1491
-          cut seg2_khusro   1520 1612
-          cut seg3_abubakr  1987 2140
-          cut seg4_ghar     2373 2492
-          cut seg5_musa     2480 2674
-          ls -la media/raw
+          cp captions.ar.srt video.ar.srt
+          python build_final.py
+          ls -la clips/
 
-      - name: Commit segments
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add media/raw
-          git commit -m "Add raw video segments for TikTok clip production"
-          git push origin HEAD
+      - name: Upload clips
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiktok-clips
+          path: scripts/tiktok/clips/*.mp4
+          if-no-files-found: error
+          retention-days: 7
