@@ -1,0 +1,68 @@
+name: Extract video segments
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -U "yt-dlp[default]" yt-dlp-ejs bgutil-ytdlp-pot-provider
+
+      - name: Start PO token provider
+        run: |
+          git clone --depth 1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /tmp/bgutil
+          cd /tmp/bgutil/server
+          npm install --silent
+          npx tsc
+          nohup node build/main.js > /tmp/pot.log 2>&1 &
+          sleep 3
+          curl -s http://127.0.0.1:4416/ping || true
+
+      - name: Download video
+        run: |
+          set +e
+          for clients in "web_safari,android,web" "tv" "web_embedded,web" "android_vr" "ios"; do
+            echo "=== trying player_client=$clients"
+            yt-dlp --extractor-args "youtube:player_client=$clients" \
+              -f "18/b[height<=480]/b" -o video.mp4 \
+              --retries 5 --socket-timeout 30 \
+              "https://youtu.be/nSH6Hpw8Dpg" && break
+            sleep 10
+          done
+          set -e
+          test -f video.mp4
+          ffprobe -v error -show_entries format=duration -of csv=p=0 video.mp4
+
+      - name: Cut raw segments
+        run: |
+          mkdir -p media/raw
+          cut() { ffmpeg -y -v error -ss "$2" -to "$3" -i video.mp4 -c copy "media/raw/$1.mp4"; }
+          cut seg1_razi     1318 1491
+          cut seg2_khusro   1520 1612
+          cut seg3_abubakr  1987 2140
+          cut seg4_ghar     2373 2492
+          cut seg5_musa     2480 2674
+          ls -la media/raw
+
+      - name: Commit segments
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add media/raw
+          git commit -m "Add raw video segments for TikTok clip production"
+          git push origin HEAD
