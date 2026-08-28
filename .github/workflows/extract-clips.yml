@@ -2,6 +2,12 @@ name: Extract video segments
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - claude/tiktok-video-clips-extraction-l9um55
+    paths:
+      - .github/workflows/extract-clips.yml
+      - .work/trigger.txt
 
 permissions:
   contents: write
