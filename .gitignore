@@ -9,3 +9,11 @@ dist-ssr
 .work/gf.css
 .work/video
 .work/*.webm
+
+# generated video build output
+video/**/frames
+video/**/video.html
+video/**/*.mp4
+
+__pycache__/
+*.pyc
