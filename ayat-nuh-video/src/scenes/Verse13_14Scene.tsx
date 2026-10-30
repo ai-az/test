@@ -8,101 +8,123 @@ import {
 import { Background } from "../components/Background";
 import { TextPanel } from "../components/TextPanel";
 import { VerseText } from "../components/VerseText";
+import { DrawPath, GlowDefs } from "../components/art";
 
-const STAGES = [
-  { x: 140, r: 22, from: 100 },
-  { x: 340, r: 40, from: 118 },
-  { x: 540, r: 60, from: 136 },
-  { x: 740, r: 82, from: 154 },
-  { x: 940, r: 106, from: 172 },
-];
+const PHASES = [0.06, 0.22, 0.38, 0.5, 0.64, 0.82, 1];
+const R = 44;
+
+/** Lit part of a moon at phase p (0 = new, 0.5 = half, 1 = full), right side lit. */
+const litPath = (p: number) => {
+  const rx = Math.abs(Math.cos(Math.PI * p)) * R;
+  const sweep = p < 0.5 ? 0 : 1;
+  if (p >= 0.995)
+    return `M 0 ${-R} A ${R} ${R} 0 1 1 0 ${R} A ${R} ${R} 0 1 1 0 ${-R} Z`;
+  return `M 0 ${-R} A ${R} ${R} 0 0 1 0 ${R} A ${rx} ${R} 0 0 ${sweep} 0 ${-R} Z`;
+};
+
+const MOONS = PHASES.map((p, i) => ({
+  p,
+  x: 120 + i * 140,
+  y: 600 - Math.sin((i / 6) * Math.PI) * 150,
+  from: 105 + i * 13,
+}));
+
+const ARC = `M ${MOONS[0].x} ${MOONS[0].y} Q 540 ${600 - 150 - 90} ${MOONS[6].x} ${MOONS[6].y}`;
 
 export const Verse13_14Scene: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill name="Verses 13-14">
       <Background />
-      <Interactive.Div
-        name="Question glow"
-        style={{
-          position: "absolute",
-          left: 190,
-          top: 250,
-          width: 700,
-          height: 700,
-          borderRadius: 350,
-          border: "2px solid rgba(228,196,110,0.5)",
-          opacity: interpolate(frame, [0, 30, 90, 120], [0, 0.9, 0.9, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-          scale: interpolate(frame, [0, 120], [0.4, 1.25], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-            output: "perceptual-scale",
-          }),
-        }}
-      />
-      <Interactive.Div
-        name="Question glow 2"
-        style={{
-          position: "absolute",
-          left: 290,
-          top: 350,
-          width: 500,
-          height: 500,
-          borderRadius: 250,
-          border: "2px solid rgba(228,196,110,0.35)",
-          opacity: interpolate(frame, [15, 45, 90, 120], [0, 0.9, 0.9, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-          scale: interpolate(frame, [15, 120], [0.4, 1.5], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-            output: "perceptual-scale",
-          }),
-        }}
-      />
-      <Interactive.Div
-        name="Stages line"
-        style={{
-          position: "absolute",
-          left: 140,
-          top: 598,
-          height: 4,
-          background: "linear-gradient(90deg, rgba(228,196,110,0.2), #e4c46e)",
-          width: interpolate(frame, [100, 190], [0, 800], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-        }}
-      />
-      {STAGES.map((s, i) => (
+      {[0, 1, 2].map((i) => (
         <Interactive.Div
           key={i}
-          name="Stage"
+          name="Pulse ring"
           style={{
             position: "absolute",
-            left: s.x - s.r,
-            top: 600 - s.r,
-            width: s.r * 2,
-            height: s.r * 2,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle at 35% 30%, #fff1c2 0%, #e4c46e 45%, #9b7a2c 100%)",
-            boxShadow: "0 0 40px rgba(228,196,110,0.45)",
-            scale: interpolate(frame, [s.from, s.from + 30], [0, 1], {
+            left: 540 - 60,
+            top: 520 - 60,
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+            border: "1.5px solid rgba(228,196,110,0.8)",
+            boxShadow: "0 0 24px rgba(228,196,110,0.35)",
+            opacity: interpolate(
+              frame,
+              [i * 22, i * 22 + 10, 70 + i * 22, 95 + i * 22],
+              [0, 0.9, 0.5, 0],
+              {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              },
+            ),
+            scale: interpolate(frame, [i * 22, 95 + i * 22], [0.2, 6], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
-              easing: Easing.spring({ damping: 12, stiffness: 110 }),
+              easing: Easing.bezier(0.16, 1, 0.3, 1),
             }),
           }}
         />
       ))}
+      <Interactive.Div
+        name="Moon phases"
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: 1080,
+          height: 1000,
+          opacity: interpolate(frame, [95, 115], [0, 1], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          }),
+        }}
+      >
+        <svg width={1080} height={1000} viewBox="0 0 1080 1000">
+          <GlowDefs id="v13" />
+          <DrawPath
+            d={ARC}
+            from={100}
+            duration={90}
+            strokeWidth={1.5}
+            opacity={0.55}
+            dashed
+          />
+          {MOONS.map((m, i) => (
+            <g
+              key={i}
+              transform={`translate(${m.x} ${m.y}) scale(${interpolate(
+                frame,
+                [m.from, m.from + 28],
+                [0, 1],
+                {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                  easing: Easing.spring({ damping: 13, stiffness: 120 }),
+                },
+              )})`}
+            >
+              <circle
+                r={R + 18}
+                fill="#f7e3a6"
+                opacity={0.12 * m.p}
+                filter="url(#v13-glow)"
+              />
+              <circle
+                r={R}
+                fill="#101c33"
+                stroke="rgba(228,196,110,0.5)"
+                strokeWidth={1.2}
+              />
+              <path
+                d={litPath(m.p)}
+                fill="url(#v13-gold)"
+                filter="url(#v13-soft)"
+              />
+            </g>
+          ))}
+        </svg>
+      </Interactive.Div>
       <TextPanel>
         <VerseText
           fontSize={62}
@@ -112,11 +134,7 @@ export const Verse13_14Scene: React.FC = () => {
               number: "١٣",
               from: 15,
             },
-            {
-              text: "وَقَدْ خَلَقَكُمْ أَطْوَارًا",
-              number: "١٤",
-              from: 100,
-            },
+            { text: "وَقَدْ خَلَقَكُمْ أَطْوَارًا", number: "١٤", from: 100 },
           ]}
         />
       </TextPanel>

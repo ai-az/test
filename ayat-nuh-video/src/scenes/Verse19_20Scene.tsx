@@ -8,92 +8,116 @@ import {
 import { Background } from "../components/Background";
 import { TextPanel } from "../components/TextPanel";
 import { VerseText } from "../components/VerseText";
+import { DrawPath, GlowDefs } from "../components/art";
 
-const PATHS = [
-  "M -40 760 C 200 700 260 560 520 520 C 780 480 860 380 1120 330",
-  "M -40 820 C 240 820 380 640 600 640 C 820 640 900 540 1120 470",
-  "M -40 650 C 160 640 220 520 420 480 C 640 440 760 420 1120 380",
-];
+const FAR =
+  "M 0 520 C 120 440 220 400 330 430 C 430 300 520 330 600 420 C 700 360 820 300 900 380 C 980 330 1040 380 1080 420 L 1080 1000 L 0 1000 Z";
+const MID =
+  "M 0 640 C 150 560 260 540 360 600 C 470 500 560 520 650 600 C 760 540 860 520 1080 600 L 1080 1000 L 0 1000 Z";
+const NEAR =
+  "M 0 780 C 200 700 400 720 540 760 C 700 700 900 720 1080 790 L 1080 1000 L 0 1000 Z";
+
+const ROAD =
+  "M -20 880 C 160 850 260 780 420 760 C 560 740 600 690 640 640 C 690 580 820 580 900 540 C 980 500 1040 470 1100 440";
+const ROAD2 = "M -20 960 C 200 920 420 900 560 860 C 700 820 760 780 1100 700";
 
 export const Verse19_20Scene: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill name="Verses 19-20">
       <Background />
-      <Interactive.Div
-        name="Spread earth"
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 230,
-          width: 1080,
-          height: 700,
-          transformOrigin: "50% 50%",
-          scale: interpolate(frame, [10, 70], [0, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-        }}
-      >
-        <svg viewBox="0 0 1080 700" width={1080} height={700}>
-          <defs>
-            <linearGradient id="earthGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#3c7a4f" />
-              <stop offset="1" stopColor="#1e4630" />
-            </linearGradient>
-          </defs>
-          <path
-            d="M 0 320 C 200 160 420 120 540 130 C 700 140 900 220 1080 300 L 1080 700 L 0 700 Z"
-            fill="url(#earthGrad)"
-          />
-          <path
-            d="M 0 330 C 200 180 420 140 540 150 C 700 160 900 240 1080 310"
-            stroke="rgba(228,196,110,0.7)"
-            strokeWidth={5}
-            fill="none"
-          />
-        </svg>
-      </Interactive.Div>
+      {[
+        { d: FAR, from: 10, fill: "#13244a", name: "Far hills" },
+        { d: MID, from: 28, fill: "#0d1a38", name: "Mid hills" },
+        { d: NEAR, from: 46, fill: "#070f22", name: "Near ground" },
+      ].map((l) => (
+        <Interactive.Div
+          key={l.name}
+          name={l.name}
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: 1080,
+            height: 1000,
+            transformOrigin: "50% 100%",
+            scale: interpolate(frame, [l.from, l.from + 60], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+              easing: Easing.bezier(0.16, 1, 0.3, 1),
+            }),
+            opacity: interpolate(frame, [l.from, l.from + 20], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            }),
+          }}
+        >
+          <svg width={1080} height={1000} viewBox="0 0 1080 1000">
+            <GlowDefs id={`v19-${l.from}`} />
+            <path d={l.d} fill={l.fill} />
+            <DrawPath
+              d={l.d.replace(/ L 1080 1000 L 0 1000 Z$/, "")}
+              from={l.from + 10}
+              duration={70}
+              strokeWidth={2}
+              stroke={`url(#v19-${l.from}-gold)`}
+              filter={`url(#v19-${l.from}-glow)`}
+              opacity={0.9}
+            />
+          </svg>
+        </Interactive.Div>
+      ))}
       <Interactive.Div
         name="Roads"
         style={{
           position: "absolute",
           left: 0,
-          top: 230,
+          top: 0,
           width: 1080,
-          height: 700,
+          height: 1000,
         }}
       >
-        <svg viewBox="0 0 1080 700" width={1080} height={700}>
-          {PATHS.map((d, i) => (
-            <path
-              key={i}
-              d={d}
-              stroke="#f1d78a"
-              strokeWidth={10}
-              strokeLinecap="round"
-              strokeDasharray="22 26"
-              fill="none"
-              opacity={0.95}
-              pathLength={1}
-              strokeDashoffset={0}
-              style={{
-                strokeDasharray: 1,
-                strokeDashoffset: interpolate(
-                  frame,
-                  [105 + i * 18, 190 + i * 18],
-                  [1, 0],
-                  {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                    easing: Easing.bezier(0.3, 0, 0.2, 1),
-                  },
-                ),
-              }}
-            />
-          ))}
+        <svg width={1080} height={1000} viewBox="0 0 1080 1000">
+          <GlowDefs id="v19r" />
+          <DrawPath
+            d={ROAD2}
+            from={120}
+            duration={110}
+            strokeWidth={2}
+            opacity={0.5}
+            dashed
+          />
+          <DrawPath
+            d={ROAD}
+            from={105}
+            duration={110}
+            strokeWidth={3.5}
+            stroke="url(#v19r-gold)"
+            filter="url(#v19r-glow)"
+          />
         </svg>
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: 22,
+            height: 22,
+            marginLeft: -11,
+            marginTop: -11,
+            borderRadius: 11,
+            background:
+              "radial-gradient(circle, #fff8dc 0%, #f7e3a6 40%, rgba(247,227,166,0) 75%)",
+            boxShadow: "0 0 30px 8px rgba(247,227,166,0.55)",
+            offsetPath: `path("${ROAD}")`,
+            offsetRotate: "0deg",
+            offsetDistance: `${interpolate(frame, [110, 220], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.4, 0, 0.2, 1) })}%`,
+            opacity: interpolate(frame, [110, 125, 215, 235], [0, 1, 1, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            }),
+          }}
+        />
       </Interactive.Div>
       <TextPanel>
         <VerseText
